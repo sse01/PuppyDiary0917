@@ -34,9 +34,7 @@ public class MyinfoResponse {
             return image;
         }
 
-        public String getPuppyname(){
-            return puppyname;
-        }
+        public String getPuppyname(){ return puppyname; }
 
         public int getAge(){
             return age;
