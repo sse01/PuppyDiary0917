@@ -59,6 +59,13 @@ public class Findpwd extends AppCompatActivity {
             }
         });
 
+        finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
     }
 
     private void SendEmail(FindpwData data){

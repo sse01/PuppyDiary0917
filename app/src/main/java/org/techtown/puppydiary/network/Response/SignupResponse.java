@@ -1,60 +1,24 @@
 package org.techtown.puppydiary.network.Response;
 
+import com.google.gson.annotations.SerializedName;
+
 public class SignupResponse {
-
-    private int status;
+    @SerializedName("code")
+    private int code;
+    @SerializedName("success")
     private boolean success;
+    @SerializedName("message")
     private String message;
-    private Checkemail data;
-    private Checkpassword pwd;
-    private CheckpasswordConfirm pwdC;
 
-    public int getStatus(){
-        return status;
+    public int getCode() {
+        return code;
     }
 
     public boolean getSuccess(){
         return success;
     }
 
-    public String getMessage(){
+    public String getMessage() {
         return message;
     }
-
-    public Checkemail getData(){
-        return data;
-    }
-
-    public Checkpassword getPwd(){
-        return pwd;
-    }
-
-    public CheckpasswordConfirm getPwdC(){
-        return pwdC;
-    }
-
-    public class Checkemail {
-        private String email;
-
-        public String getEmail(){
-            return email;
-        }
-    }
-
-    public class Checkpassword {
-        private String password;
-
-        public String getPassword(){
-            return password;
-        }
-    }
-
-    public class CheckpasswordConfirm {
-        private String passwordC;
-
-        public String getPassword(){
-            return passwordC;
-        }
-    }
-
 }

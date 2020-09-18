@@ -26,16 +26,36 @@ public class DBHelper_user extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // 새로운 테이블 생성
-        db.execSQL("CREATE TABLE IF NOT EXISTS usertest (useridx INTEGER);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS usertest (useridx INTEGER PRIMARY KEY);");
     }
 
     public void insert(int useridx) {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT OR REPLACE INTO usertest(useridx) VALUES(" + useridx + ");");
+        db.execSQL("INSERT INTO usertest (useridx) VALUES(" + useridx + ");");
+
+        System.out.println("insert useridx !!!!!!! : " + useridx);
 
         db.close();
     }
+
+    public int getuseridx(){
+
+        SQLiteDatabase db = getReadableDatabase();
+        int useridx = 0;
+
+        cursor = db.rawQuery("SELECT * from usertest;", null);
+
+        if (cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+                useridx = cursor.getInt(cursor.getColumnIndex("useridx"));
+            }
+        }
+        cursor.close();
+        db.close();
+        return useridx;
+    }
+
 
 }

@@ -1,12 +1,19 @@
 package org.techtown.puppydiary.network.Response;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import com.google.gson.JsonObject;
+
 public class SigninResponse {
 
     private int status;
     private boolean success;
     private String message;
-    private Checkemail data;
-    private Checkpassword pwd;
+    private JsonObject data;
+    private int userIdx;
+
 
     public int getStatus(){
         return status;
@@ -20,28 +27,24 @@ public class SigninResponse {
         return message;
     }
 
-    public Checkemail getData(){
-        return data;
+    public JsonObject getData(){ return data; }
+
+    public int getUserIdx(){
+        userIdx = data.getAsJsonObject().get("userIdx").getAsInt();
+        return userIdx;
     }
 
-    public Checkpassword getPwd(){
-        return pwd;
+    public void save(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt("USERIDX", userIdx).apply();
     }
 
-    public class Checkemail {
-        private String email;
-
-        public String getEmail(){
-            return email;
-        }
+    public int load(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getInt("USERIDX", 0);
     }
 
-    public class Checkpassword {
-        private String password;
 
-        public String getPassword(){
-            return password;
-        }
-    }
 
 }

@@ -3,11 +3,13 @@ package org.techtown.puppydiary.calendarmenu;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
 import org.techtown.puppydiary.MypuppyTab;
@@ -31,6 +34,7 @@ import org.techtown.puppydiary.SetPuppy;
 import org.techtown.puppydiary.accountmenu.MoneyEdit;
 import org.techtown.puppydiary.accountmenu.MoneyTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
+import org.techtown.puppydiary.network.Response.SigninResponse;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -71,7 +75,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
 
     int month = 0;
     int date = 0;
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -130,6 +133,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
                 startActivity(intent_puppy);
             }
         });
+
 
         tvDate = findViewById(R.id.tv_date);
         gridView = findViewById(R.id.gridview);
@@ -257,6 +261,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         private int mresource;
         private LayoutInflater minflater;
 
+        int useridx = new SigninResponse().load(getApplicationContext());
+
         public GridAdapter(Context context, int textResource, ArrayList<DayInfo> dayList) {
             this.mcontext = context;
             this.mdayList = dayList;
@@ -282,10 +288,9 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
 
-            final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "dbcalendartest.db", null, 1);
+            final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "dbcalendartest2.db", null, 1);
             DayInfo day = dayList.get(position);
             ViewHolder holder = null;
-
             if (convertView == null) {
                 convertView = minflater.inflate(mresource, null);
                 convertView.setLayoutParams(new GridView.LayoutParams(1080 / 7 + 1080 % 7, 180));
@@ -297,8 +302,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            int state_waterdrop = dbHelper.getResult_waterdrop(position, month);
-            int state_injection = dbHelper.getResult_injection(position, month);
+            int state_waterdrop = dbHelper.getResult_waterdrop(useridx, position, month);
+            int state_injection = dbHelper.getResult_injection(useridx, position, month);
             if (state_waterdrop == 0 && state_injection == 0) {
             } else if (state_waterdrop == 1 && state_injection == 0) {
                 //물방울만

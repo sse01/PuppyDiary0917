@@ -4,12 +4,12 @@ public class SignupData {
 
     private String email;
     private String password;
-    private String passwordC;
+    private String passwordConfirm;
 
-    public SignupData(String email, String password, String passwordC) {
+    public SignupData(String email, String password, String passwordConfirm) {
         this.email = email;
         this.password = password;
-        this.passwordC = passwordC;
+        this.passwordConfirm = passwordConfirm;
     }
 
 }

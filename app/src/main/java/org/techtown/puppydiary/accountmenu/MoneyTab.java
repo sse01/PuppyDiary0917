@@ -3,9 +3,11 @@ package org.techtown.puppydiary.accountmenu;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +24,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
 import org.techtown.puppydiary.MypuppyTab;
 import org.techtown.puppydiary.R;
+import org.techtown.puppydiary.network.Response.SigninResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,6 +72,8 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
     ArrayList<MoneytabItem> itemArray = null;
     ListAdapter adapter;
     ListView listview;
+
+    SigninResponse userinfo = new SigninResponse();
 
 
     @Override
@@ -119,6 +125,10 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                 startActivity(intent_puppy);
             }
         });
+
+
+        final int useridx = userinfo.load(getApplicationContext());
+
         listview = findViewById(R.id.accountlist);
         listview.setOnItemClickListener(this);
 
@@ -130,7 +140,8 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         itemArray = new ArrayList<MoneytabItem>();
         adapter = new ListAdapter(this, itemArray);
 
-        dbHelper = new DBHelper_money(getApplicationContext(), "mt6.db", null, 1);
+
+        dbHelper = new DBHelper_money(getApplicationContext(), "dbmoneytest.db", null, 1);
         EditTexts = new EditText[]{
                 (EditText) findViewById(R.id.edit_context),
                 (EditText) findViewById(R.id.edit_price)
@@ -159,7 +170,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
             //itemArray.add(after_position-1, items);
             //int trash = dbHelper.getCount(year_money, month_money, day_money);
             //itemArray.remove(trash-1);
-            tv_total.setText(dbHelper.getSum(year_money, month_money, day_money) + "원");
+            tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
             listview.setAdapter(adapter);
         } else {
             // 기본 시작화면 : 오늘날짜 세팅
@@ -172,7 +183,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
             CursorToArray();
             adapter.setArrayList(itemArray);
             listview.setAdapter(adapter);
-            tv_total.setText(dbHelper.getSum(year_money, month_money, day_money) + "원");
+            tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
         }
 
 
@@ -191,7 +202,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                 itemArray.clear();
                 CursorToArray();
                 adapter.setArrayList(itemArray);
-                tv_total.setText(dbHelper.getSum(year_money, month_money, day_money) + "원");
+                tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
                 listview.setAdapter(adapter);
             }
         };
@@ -215,18 +226,18 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                 price = Integer.parseInt(et_price.getText().toString());
 
                 //중복체크
-                switch (dbHelper.check(year_money, month_money, day_money, price, memo)){
+                switch (dbHelper.check(useridx, year_money, month_money, day_money, price, memo)){
                     case 1 : {
                         Toast.makeText(getApplicationContext(), "중복 항목이 존재합니다.", Toast.LENGTH_LONG).show();
                         break;
                     }
                     default : {
-                        dbHelper.insert(year_money, month_money, day_money, price, memo);
+                        dbHelper.insert(useridx, year_money, month_money, day_money, price, memo);
                         itemArray.clear();
                         CursorToArray();
                         adapter.setArrayList(itemArray);
                         adapter.notifyDataSetChanged();
-                        tv_total.setText(dbHelper.getSum(year_money, month_money, day_money) + "원");
+                        tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
 
                         et_memo.getText().clear();
                         et_price.getText().clear();
@@ -274,8 +285,11 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
 
     private void CursorToArray() {
 
+
+        final int useridx = userinfo.load(getApplicationContext());
+
         cursor = null;
-        cursor = dbHelper.getResult(year_money, month_money, day_money);
+        cursor = dbHelper.getResult(useridx, year_money, month_money, day_money);
 
         if (cursor != null && cursor.moveToFirst()) {
             do {

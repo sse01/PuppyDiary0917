@@ -1,8 +1,11 @@
 package org.techtown.puppydiary;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,7 +15,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.puppydiary.accountmenu.DBHelper_money;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
+import org.techtown.puppydiary.calendarmenu.DBHelper_cal;
+import org.techtown.puppydiary.kgmenu.DBHelper_kg;
 import org.techtown.puppydiary.network.Data.SigninData;
 import org.techtown.puppydiary.network.Response.SigninResponse;
 import org.techtown.puppydiary.network.RetrofitClient;
@@ -28,6 +34,8 @@ public class Login extends AppCompatActivity {
     private ServiceApi service;
     private TextView emailview;
     private TextView passwordview;
+    String email;
+    String password;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,15 +56,24 @@ public class Login extends AppCompatActivity {
         emailview = (TextView) findViewById(R.id.tv_emaillogin);
         passwordview = (TextView) findViewById(R.id.tv_passwordlogin);
 
-        final String email = emailview.getText().toString();
-        final String password = passwordview.getText().toString();
 
         // 로그인 누르면 다음 화면으로 넘어가게
         Button button_lgn = findViewById(R.id.btn_login);
         button_lgn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                email = emailview.getText().toString();
+                password = passwordview.getText().toString();
                 startLogin(new SigninData(email, password));
+            }
+        });
+
+        TextView tv_findpwd = findViewById(R.id.tv_findpassword);
+        tv_findpwd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent_findpwd = new Intent(getApplicationContext(), Findpwd.class);
+                startActivityForResult(intent_findpwd, 2000);
             }
         });
 
@@ -77,6 +94,22 @@ public class Login extends AppCompatActivity {
             public void onResponse(Call<SigninResponse> call, Response<SigninResponse> response) {
                 SigninResponse result = response.body();
                 Toast.makeText(Login.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                //로그인 성공
+                if(result.getSuccess()==true){
+
+                    int useridx = result.getUserIdx();
+
+                    result.save(getApplicationContext());
+
+                    DBHelper_user dbuser = new DBHelper_user(getApplicationContext(), "usertest.db", null, 1);
+
+                    //각 db에 insert useridx
+                    dbuser.insert(useridx);
+
+                    //달력 탭으로 시작
+                    Intent intent_start = new Intent(getApplicationContext(), CalendarTab.class);
+                    startActivityForResult(intent_start, 2000);
+                }
             }
 
             @Override

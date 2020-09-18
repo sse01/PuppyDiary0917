@@ -29,7 +29,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.R;
+import org.techtown.puppydiary.network.Response.SigninResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -58,16 +60,21 @@ public class CalendarDetail extends AppCompatActivity {
 
     TextView tv_date;
 
+    SigninResponse userinfo = new SigninResponse();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_calendar_detail);
 
-        final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "dbcalendartest.db", null, 1);
+        final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "dbcalendartest2.db", null, 1);
         final Intent intent = new Intent(getIntent());
         final int pos = intent.getIntExtra("pos", 0);
         final int month = intent.getIntExtra("month", 0);
         final int date = intent.getIntExtra("date", 0);
+
+        final int useridx = userinfo.load(getApplicationContext());
+
 
         tv_date = (TextView) findViewById(R.id.tv_date);
         waterdrop_btn = findViewById(R.id.waterdrop_detail);
@@ -75,8 +82,9 @@ public class CalendarDetail extends AppCompatActivity {
         injection_btn = findViewById(R.id.injection_detail);
         injection_btn2 = findViewById(R.id.injection_color);
 
-        waterdrop = dbHelper.getResult_waterdrop(pos, month);
-        injection = dbHelper.getResult_injection(pos, month);
+
+        waterdrop = dbHelper.getResult_waterdrop(useridx, pos, month);
+        injection = dbHelper.getResult_injection(useridx, pos, month);
 
         tv_date.setText(month + ". " + date);
 
@@ -107,10 +115,10 @@ public class CalendarDetail extends AppCompatActivity {
         save_btn = findViewById(R.id.btn_savedetail);
 
         memo_et = (EditText) findViewById(R.id.edittext_memo);
-        memo_et.setText(dbHelper.getResult(pos, month));
+        memo_et.setText(dbHelper.getResult(useridx, pos, month));
 
         image_upload = (ImageView) findViewById(R.id.image_upload);
-        image_byte = dbHelper.getResultimg(pos, month);
+        image_byte = dbHelper.getResultimg(useridx, pos, month);
         System.out.println("open : " + image_byte);
         if (image_byte != null) {
             BitmapFactory.decodeByteArray(image_byte, 0, image_byte.length);
@@ -179,12 +187,12 @@ public class CalendarDetail extends AppCompatActivity {
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                System.out.println();
                 text = memo_et.getText().toString();
                 if (image_byte == null){
-                    dbHelper.insert(pos, month, text, null, waterdrop, injection);
+                    dbHelper.insert(useridx, pos, month, text, null, waterdrop, injection);
                 } else {
-                    dbHelper.insert(pos, month, text, image_byte, waterdrop, injection);
+                    dbHelper.insert(useridx, pos, month, text, image_byte, waterdrop, injection);
                 }
 
                 Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();

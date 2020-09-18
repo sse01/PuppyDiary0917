@@ -2,8 +2,10 @@ package org.techtown.puppydiary.accountmenu;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +15,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.R;
+import org.techtown.puppydiary.network.Response.SigninResponse;
 
 //moneyTab item click 시 나오는 수정 삭제 화면
 public class MoneyEdit extends AppCompatActivity {
@@ -29,6 +33,8 @@ public class MoneyEdit extends AppCompatActivity {
     int price = 0;
     String memo = null;
 
+    SigninResponse userinfo = new SigninResponse();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +49,9 @@ public class MoneyEdit extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true) ;
 
 
-        final DBHelper_money dbHelper = new DBHelper_money(getApplicationContext(), "mt6.db", null, 1);
+        final int useridx = userinfo.load(getApplicationContext());
+
+        final DBHelper_money dbHelper = new DBHelper_money(getApplicationContext(), "dbmoneytest.db", null, 1);
 
         final Intent intent = new Intent(getIntent());
         final int position = intent.getIntExtra("position", 0);
@@ -51,8 +59,8 @@ public class MoneyEdit extends AppCompatActivity {
         final int getmonth = intent.getIntExtra("month", 0);
         final int getday = intent.getIntExtra("day", 0);
 
-        getmemo = dbHelper.memo(position, getyear, getmonth, getday);
-        getprice = dbHelper.price(position, getyear, getmonth, getday);
+        getmemo = dbHelper.memo(useridx, position, getyear, getmonth, getday);
+        getprice = dbHelper.price(useridx, position, getyear, getmonth, getday);
 
         final String getdate = getyear + "/" + getmonth + "/" + getday;
 
@@ -96,7 +104,7 @@ public class MoneyEdit extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbHelper.delete(position, getyear, getmonth, getday);
+                dbHelper.delete(useridx, position, getyear, getmonth, getday);
                 Intent intent_after = new Intent(MoneyEdit.this, MoneyTab.class);
                 intent_after.putExtra("after_year", getyear);
                 intent_after.putExtra("after_month", getmonth);
