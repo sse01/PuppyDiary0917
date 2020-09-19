@@ -99,6 +99,7 @@ public class KgTab extends AppCompatActivity {
         // 캘린더 타이틀(년월 표시)을 세팅한다.
         tvDate.setText((mCal.get(Calendar.YEAR)) + "년");
 
+
         //하단탭 클릭 시
         Button cal = findViewById(R.id.calendar);
         cal.setOnClickListener(new View.OnClickListener() {

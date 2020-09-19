@@ -101,7 +101,7 @@ public class Login extends AppCompatActivity {
                 //로그인 성공
                 if(result.getSuccess()==true){
 
-                    jwtToken = "Bearer " + result.getJwtToken();
+                    jwtToken = result.getJwtToken();
 
                     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = sp.edit();

@@ -33,7 +33,7 @@ public class Pwd extends AppCompatActivity {
 
     ActionBar actionBar;
     private ServiceApi service;
-    String jwtToken;
+    String jwtToken = Login.jwtToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +156,7 @@ public class Pwd extends AppCompatActivity {
     }
 
     public void ChangePassword(UpdatepwData data){
+        System.out.println("PWDPWDPWD TOKEN !!! : "+ jwtToken);
         service.updatepw(data).enqueue(new Callback<UpdatepwResponse>() {
             @Override
             public void onResponse(Call<UpdatepwResponse> call, Response<UpdatepwResponse> response) {

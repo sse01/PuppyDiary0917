@@ -1,17 +1,32 @@
 package org.techtown.puppydiary.kgmenu;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.puppydiary.Login;
 import org.techtown.puppydiary.R;
+import org.techtown.puppydiary.calendarmenu.CalendarTab;
+import org.techtown.puppydiary.network.Data.KgupdateData;
+import org.techtown.puppydiary.network.Response.KgupdateResponse;
+import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.RetrofitClient;
+import org.techtown.puppydiary.network.ServiceApi;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static org.techtown.puppydiary.kgmenu.KgTab.kg_month;
 import static org.techtown.puppydiary.kgmenu.KgTab.year_kg;
@@ -26,6 +41,8 @@ public class KgPopup extends AppCompatActivity {
     EditText weight;
     Button okay;
     Button close;
+
+    private ServiceApi service;
 /*
     MainActivity mainActivity;
 
@@ -57,6 +74,7 @@ public class KgPopup extends AppCompatActivity {
         actionBar.setDisplayUseLogoEnabled(true) ;
         actionBar.setDisplayShowHomeEnabled(true) ;
 
+        service = RetrofitClient.getClient().create(ServiceApi.class);
 
         monthname = kg_month;
         TextView Month = (TextView) findViewById(R.id.kgmonth);
@@ -66,13 +84,16 @@ public class KgPopup extends AppCompatActivity {
         okay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                weight = (EditText)findViewById(R.id.kg_weight); //weight edittext 가져오기, kgTab에서 사용해야 하는 것이므로 이 클래스에서는 public 설정
+                kgStr = weight.getText().toString();
+
+                UpdateKg(new KgupdateData(year_kg, monthname, kgStr));
                 //button.setBackground(R.drawable.button_pressed);
                 okay.setBackgroundResource(R.drawable.button_pressed); //확인 버튼 클릭시 color changed -> 다른 버튼들에도 추가해주면 좋음
                 Intent intent_kgconfirm = new Intent(getApplicationContext(), KgTab.class);
                 startActivity(intent_kgconfirm);
 
-                weight = (EditText)findViewById(R.id.kg_weight); //weight edittext 가져오기, kgTab에서 사용해야 하는 것이므로 이 클래스에서는 public 설정
-                kgStr = weight.getText().toString();
                 //만약 jan의 kg 이 3.5 였다면 tostring으로 "3.5"=kgStr
 
                 if(monthname.equals("January")) {
@@ -126,6 +147,28 @@ public class KgPopup extends AppCompatActivity {
 
                 Intent intent_kgclose = new Intent(getApplicationContext(), KgTab.class); //일단 바로 검색결과 띄음
                 startActivity(intent_kgclose);
+            }
+        });
+    }
+
+    private void UpdateKg(KgupdateData data){
+        service.kgupdate(data).enqueue(new Callback<KgupdateResponse>() {
+
+            @Override
+            public void onResponse(Call<KgupdateResponse> call, Response<KgupdateResponse> response) {
+                KgupdateResponse result = response.body();
+                Toast.makeText(KgPopup.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+
+                if(result.getSuccess() == true){
+                    Intent intent_start = new Intent(getApplicationContext(), KgTab.class);
+                    startActivityForResult(intent_start, 2000);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<KgupdateResponse> call, Throwable t) {
+                Toast.makeText(KgPopup.this, "체중 업데이트 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("체중 업데이트 에러 발생", t.getMessage());
             }
         });
     }

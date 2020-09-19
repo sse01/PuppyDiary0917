@@ -11,6 +11,7 @@ import org.techtown.puppydiary.Login;
 import org.techtown.puppydiary.Pwd;
 import org.techtown.puppydiary.network.Data.CheckemailData;
 import org.techtown.puppydiary.network.Data.FindpwData;
+import org.techtown.puppydiary.network.Data.KgupdateData;
 import org.techtown.puppydiary.network.Data.MyinfoData;
 import org.techtown.puppydiary.network.Data.ProfileData;
 import org.techtown.puppydiary.network.Data.RegisterData;
@@ -19,6 +20,7 @@ import org.techtown.puppydiary.network.Data.SignupData;
 import org.techtown.puppydiary.network.Data.UpdatepwData;
 import org.techtown.puppydiary.network.Response.CheckemailResponse;
 import org.techtown.puppydiary.network.Response.FindpwResponse;
+import org.techtown.puppydiary.network.Response.KgupdateResponse;
 import org.techtown.puppydiary.network.Response.MyinfoResponse;
 import org.techtown.puppydiary.network.Response.ProfileResponse;
 import org.techtown.puppydiary.network.Response.RegisterResponse;
@@ -83,6 +85,7 @@ public interface ServiceApi {
     */
 
 
+    @Headers("token:{jwtToken}")
     @POST("/user/updatepw") //비밀번호 업데이트
     Call<UpdatepwResponse> updatepw (@Body UpdatepwData data);
     /*
@@ -95,7 +98,7 @@ public interface ServiceApi {
      */
 
 
-
+    @Headers("token:{jwtToken}")
     @POST("/mypage/registermyinfo") //강아지 정보 등록/업데이트
     Call<RegisterResponse> registerinfo (@Body RegisterData data);
     /*
@@ -107,7 +110,7 @@ public interface ServiceApi {
     }
      */
 
-
+    @Headers("token:{jwtToken}")
     @POST("/user/profile") //프로필 사진 업데이트
     Call<ProfileResponse> profile (@Body ProfileData data);
     /*
@@ -120,6 +123,10 @@ public interface ServiceApi {
 
     @GET("/mypage/myinfo") //강아지 정보 조회
     Call<MyinfoResponse> myinfo (@Body MyinfoData data);
+
+
+    @POST("/kg/update") //로그인
+    Call<KgupdateResponse> kgupdate (@Body KgupdateData data);
 }
 
 
