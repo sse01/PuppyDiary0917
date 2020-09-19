@@ -50,11 +50,11 @@ public class Findpwd extends AppCompatActivity {
         sendemail = findViewById(R.id.btn_sendemail);
         finish = findViewById(R.id.pwd_finish);
 
-        final String email = tv_email.getText().toString();
 
         sendemail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String email = tv_email.getText().toString();
                 SendEmail(new FindpwData(email));
             }
         });

@@ -1,7 +1,13 @@
 package org.techtown.puppydiary.network;
 
+import org.techtown.puppydiary.Login;
+import org.techtown.puppydiary.network.Response.UpdatepwResponse;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.POST;
 
 public class RetrofitClient {
 
@@ -10,6 +16,7 @@ public class RetrofitClient {
 
     private RetrofitClient() {
     }
+
 
     public static Retrofit getClient() {
         if (retrofit == null) {

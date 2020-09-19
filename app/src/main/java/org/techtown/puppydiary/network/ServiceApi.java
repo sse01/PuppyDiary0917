@@ -1,5 +1,14 @@
 package org.techtown.puppydiary.network;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.techtown.puppydiary.Login;
+import org.techtown.puppydiary.Pwd;
 import org.techtown.puppydiary.network.Data.CheckemailData;
 import org.techtown.puppydiary.network.Data.FindpwData;
 import org.techtown.puppydiary.network.Data.MyinfoData;
@@ -17,12 +26,26 @@ import org.techtown.puppydiary.network.Response.SigninResponse;
 import org.techtown.puppydiary.network.Response.SignupResponse;
 import org.techtown.puppydiary.network.Response.UpdatepwResponse;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.HeaderMap;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
 public interface ServiceApi {
+
+    String jwtToken = Login.jwtToken;
+
 
     @POST("/user/signup") //회원가입
     Call<SignupResponse> usersignup(@Body SignupData data);
@@ -59,8 +82,9 @@ public interface ServiceApi {
     }
     */
 
+
     @POST("/user/updatepw") //비밀번호 업데이트
-    Call<UpdatepwResponse> updatepw(@Body UpdatepwData data);
+    Call<UpdatepwResponse> updatepw (@Body UpdatepwData data);
     /*
     {
     "email" : "ga0@naver.com",
@@ -69,6 +93,8 @@ public interface ServiceApi {
     "passwordConfirm" : "1231234"
     }
      */
+
+
 
     @POST("/mypage/registermyinfo") //강아지 정보 등록/업데이트
     Call<RegisterResponse> registerinfo (@Body RegisterData data);
@@ -80,6 +106,7 @@ public interface ServiceApi {
         "gender" : "1"
     }
      */
+
 
     @POST("/user/profile") //프로필 사진 업데이트
     Call<ProfileResponse> profile (@Body ProfileData data);

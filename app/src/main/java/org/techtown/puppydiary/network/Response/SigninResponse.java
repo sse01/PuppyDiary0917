@@ -4,7 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SigninResponse {
 
@@ -13,6 +17,7 @@ public class SigninResponse {
     private String message;
     private JsonObject data;
     private int userIdx;
+    private String jwtToken;
 
 
     public int getStatus(){
@@ -34,6 +39,12 @@ public class SigninResponse {
         return userIdx;
     }
 
+    public String getJwtToken() {
+        jwtToken = data.getAsJsonObject().get("jwtToken").getAsString();
+        return jwtToken;
+    }
+
+    /*
     public void save(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
@@ -44,7 +55,7 @@ public class SigninResponse {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getInt("USERIDX", 0);
     }
-
+     */
 
 
 }

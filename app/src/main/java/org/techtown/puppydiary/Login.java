@@ -24,6 +24,8 @@ import org.techtown.puppydiary.network.Response.SigninResponse;
 import org.techtown.puppydiary.network.RetrofitClient;
 import org.techtown.puppydiary.network.ServiceApi;
 
+import java.util.HashMap;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,6 +38,8 @@ public class Login extends AppCompatActivity {
     private TextView passwordview;
     String email;
     String password;
+
+    public static String jwtToken = "";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,14 +101,22 @@ public class Login extends AppCompatActivity {
                 //로그인 성공
                 if(result.getSuccess()==true){
 
-                    int useridx = result.getUserIdx();
+                    jwtToken = "Bearer " + result.getJwtToken();
 
-                    result.save(getApplicationContext());
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("TOKEN", jwtToken).apply();
 
-                    DBHelper_user dbuser = new DBHelper_user(getApplicationContext(), "usertest.db", null, 1);
+                    //("Context-Type = application/
+
+                    //int useridx = result.getUserIdx();
+
+                    //result.save(getApplicationContext());
+
+                    //DBHelper_user dbuser = new DBHelper_user(getApplicationContext(), "usertest.db", null, 1);
 
                     //각 db에 insert useridx
-                    dbuser.insert(useridx);
+                    //dbuser.insert(useridx);
 
                     //달력 탭으로 시작
                     Intent intent_start = new Intent(getApplicationContext(), CalendarTab.class);

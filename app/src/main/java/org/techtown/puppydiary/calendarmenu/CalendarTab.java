@@ -261,7 +261,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         private int mresource;
         private LayoutInflater minflater;
 
-        int useridx = new SigninResponse().load(getApplicationContext());
+        //int useridx = new SigninResponse().load(getApplicationContext());
+        int useridx = 0;
 
         public GridAdapter(Context context, int textResource, ArrayList<DayInfo> dayList) {
             this.mcontext = context;

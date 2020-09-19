@@ -127,7 +127,9 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         });
 
 
-        final int useridx = userinfo.load(getApplicationContext());
+        //final int useridx = userinfo.load(getApplicationContext());
+        final int useridx = 0;
+
 
         listview = findViewById(R.id.accountlist);
         listview.setOnItemClickListener(this);
@@ -286,7 +288,8 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
     private void CursorToArray() {
 
 
-        final int useridx = userinfo.load(getApplicationContext());
+        //final int useridx = userinfo.load(getApplicationContext());
+        final int useridx = 0;
 
         cursor = null;
         cursor = dbHelper.getResult(useridx, year_money, month_money, day_money);

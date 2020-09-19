@@ -1,15 +1,16 @@
 package org.techtown.puppydiary;
 
 import android.content.Intent;
-import android.drm.DrmStore;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,10 +20,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.techtown.puppydiary.accountmenu.MoneyTab;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
+import org.techtown.puppydiary.network.Data.UpdatepwData;
+import org.techtown.puppydiary.network.Response.UpdatepwResponse;
+import org.techtown.puppydiary.network.RetrofitClient;
+import org.techtown.puppydiary.network.ServiceApi;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Pwd extends AppCompatActivity {
 
     ActionBar actionBar;
+    private ServiceApi service;
+    String jwtToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +47,6 @@ public class Pwd extends AppCompatActivity {
         actionBar.setIcon(R.drawable.white_puppy);
         actionBar.setDisplayUseLogoEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
-
 
         TextView textView = findViewById(R.id.textView);
         SpannableString content = new SpannableString("내 정보 수정");
@@ -83,21 +93,30 @@ public class Pwd extends AppCompatActivity {
             }
         });
 
-        Button set_button = findViewById(R.id.pwd_finish);
-        set_button.setOnClickListener(new View.OnClickListener() {
+        service = RetrofitClient.getClient().create(ServiceApi.class);
+
+
+        final EditText email = findViewById(R.id.show_id);
+        final EditText old_pwd = findViewById(R.id.old_pwd);
+        final EditText pwd_new = findViewById(R.id.new_pwd);
+        final EditText pwd_ck = findViewById(R.id.new_chk);
+
+        Button finish = findViewById(R.id.pwd_finish);
+        finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), SetPuppy.class);
-                startActivity(intent);
+                String email_add = email.getText().toString();
+                String old1 = old_pwd.getText().toString();
+                String new1 = pwd_new.getText().toString();
+                String new2 = pwd_ck.getText().toString();
+                ChangePassword(new UpdatepwData(email_add, old1, new1, new2));
             }
         });
-
-
 
         // 완료 버튼 누르면 새로운 비밀번호 확인함.
 
         // 기존 비밀번호 맞는지 확인하고 새로운 비밀번호로 업데이트 하는 거 적어야함
-
+/*
         final EditText old_pwd = findViewById(R.id.old_pwd);
         final EditText pwd_new = findViewById(R.id.new_pwd);
         final EditText pwd_ck = findViewById(R.id.new_chk);
@@ -133,5 +152,26 @@ public class Pwd extends AppCompatActivity {
             }
         });
 
+ */
+    }
+
+    public void ChangePassword(UpdatepwData data){
+        service.updatepw(data).enqueue(new Callback<UpdatepwResponse>() {
+            @Override
+            public void onResponse(Call<UpdatepwResponse> call, Response<UpdatepwResponse> response) {
+                UpdatepwResponse result = response.body();
+                Toast.makeText(Pwd.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                if(result.getSuccess() == true){
+                    Intent intent_mypage = new Intent(getApplicationContext(), MypuppyTab.class);
+                    startActivityForResult(intent_mypage, 2000);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UpdatepwResponse> call, Throwable t) {
+                Toast.makeText(Pwd.this, "비밀번호 변경 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("비밀번호 변경 에러 발생", t.getMessage());
+            }
+        });
     }
 }

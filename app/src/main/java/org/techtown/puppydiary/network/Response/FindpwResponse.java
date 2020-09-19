@@ -1,11 +1,16 @@
 package org.techtown.puppydiary.network.Response;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class FindpwResponse {
 
     private int status;
     private boolean success;
     private String message;
-    private Findpw data;
+    private JsonObject data;
+    private String toEmail;
+    private String subject;
 
     public int getStatus(){
         return status;
@@ -19,21 +24,19 @@ public class FindpwResponse {
         return message;
     }
 
-    public Findpw getData(){
+    public JsonObject getData(){
         return data;
     }
 
-    public class Findpw {
-        private String toemail;
-        private String subject;
-
-        public String getToemail(){
-            return toemail;
-        }
-
-        public String getSubject(){
-            return subject;
-        }
+    public String getToEmail(){
+        toEmail = data.getAsJsonObject().get("toEmail").getAsString();
+        return toEmail;
     }
+
+    public String getSubject(){
+        subject = data.getAsJsonObject().get("subject").getAsString();
+        return subject;
+    }
+
 
 }

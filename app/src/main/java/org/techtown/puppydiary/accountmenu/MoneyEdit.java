@@ -49,7 +49,9 @@ public class MoneyEdit extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true) ;
 
 
-        final int useridx = userinfo.load(getApplicationContext());
+        //final int useridx = userinfo.load(getApplicationContext());
+        final int useridx = 0;
+
 
         final DBHelper_money dbHelper = new DBHelper_money(getApplicationContext(), "dbmoneytest.db", null, 1);
 

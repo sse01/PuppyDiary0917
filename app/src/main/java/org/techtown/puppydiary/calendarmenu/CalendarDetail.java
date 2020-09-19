@@ -73,8 +73,8 @@ public class CalendarDetail extends AppCompatActivity {
         final int month = intent.getIntExtra("month", 0);
         final int date = intent.getIntExtra("date", 0);
 
-        final int useridx = userinfo.load(getApplicationContext());
-
+        //final int useridx = userinfo.load(getApplicationContext());
+        final int useridx = 0;
 
         tv_date = (TextView) findViewById(R.id.tv_date);
         waterdrop_btn = findViewById(R.id.waterdrop_detail);
