@@ -73,6 +73,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     int dayOfMonth;
     int thisMonthLastDay;
 
+    int year = 0;
     int month = 0;
     int date = 0;
 
@@ -156,7 +157,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     //캘린더 구현
     private void getCalendar(Calendar mCal) {
 
-
         dayList.clear();
 
         // 이번달 시작일의 요일을 구한다.
@@ -174,6 +174,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
 
         // 캘린더 타이틀(년월 표시)을 세팅
         tvDate.setText((mCal.get(Calendar.MONTH) + 1) + "월");
+
+        year = mCal.get(Calendar.YEAR);
 
         switch (mCal.get(Calendar.MONTH)+1){
             case 1: {month = 1; break;}
@@ -231,6 +233,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             //Toast.makeText(getApplicationContext(),""+position, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(CalendarTab.this, CalendarDetail.class);
             intent.putExtra("pos", position);
+            intent.putExtra("year", year);
             intent.putExtra("month", month);
             intent.putExtra("date", date);
             startActivity(intent);
@@ -289,7 +292,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
 
-            final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "dbcalendartest2.db", null, 1);
+            final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "caltest.db", null, 1);
             DayInfo day = dayList.get(position);
             ViewHolder holder = null;
             if (convertView == null) {
@@ -303,8 +306,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            int state_waterdrop = dbHelper.getResult_waterdrop(useridx, position, month);
-            int state_injection = dbHelper.getResult_injection(useridx, position, month);
+            int state_waterdrop = dbHelper.getResult_waterdrop(useridx, position, year, month);
+            int state_injection = dbHelper.getResult_injection(useridx, position, year, month);
             if (state_waterdrop == 0 && state_injection == 0) {
             } else if (state_waterdrop == 1 && state_injection == 0) {
                 //물방울만

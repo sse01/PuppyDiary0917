@@ -60,16 +60,15 @@ public class CalendarDetail extends AppCompatActivity {
 
     TextView tv_date;
 
-    SigninResponse userinfo = new SigninResponse();
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_calendar_detail);
 
-        final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "dbcalendartest2.db", null, 1);
+        final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "caltest.db", null, 1);
         final Intent intent = new Intent(getIntent());
         final int pos = intent.getIntExtra("pos", 0);
+        final int year = intent.getIntExtra("year", 0);
         final int month = intent.getIntExtra("month", 0);
         final int date = intent.getIntExtra("date", 0);
 
@@ -83,10 +82,10 @@ public class CalendarDetail extends AppCompatActivity {
         injection_btn2 = findViewById(R.id.injection_color);
 
 
-        waterdrop = dbHelper.getResult_waterdrop(useridx, pos, month);
-        injection = dbHelper.getResult_injection(useridx, pos, month);
+        waterdrop = dbHelper.getResult_waterdrop(useridx, pos, year, month);
+        injection = dbHelper.getResult_injection(useridx, pos, year, month);
 
-        tv_date.setText(month + ". " + date);
+        tv_date.setText(year + ". " + month + ". " + date);
 
         //기본세팅 : 물방울, 주사기 색깔 없음
         if(waterdrop == 0 && injection == 0) {
@@ -115,10 +114,10 @@ public class CalendarDetail extends AppCompatActivity {
         save_btn = findViewById(R.id.btn_savedetail);
 
         memo_et = (EditText) findViewById(R.id.edittext_memo);
-        memo_et.setText(dbHelper.getResult(useridx, pos, month));
+        memo_et.setText(dbHelper.getResult(useridx, pos, year, month));
 
         image_upload = (ImageView) findViewById(R.id.image_upload);
-        image_byte = dbHelper.getResultimg(useridx, pos, month);
+        image_byte = dbHelper.getResultimg(useridx, pos, year, month);
         System.out.println("open : " + image_byte);
         if (image_byte != null) {
             BitmapFactory.decodeByteArray(image_byte, 0, image_byte.length);
@@ -190,9 +189,9 @@ public class CalendarDetail extends AppCompatActivity {
                 System.out.println();
                 text = memo_et.getText().toString();
                 if (image_byte == null){
-                    dbHelper.insert(useridx, pos, month, text, null, waterdrop, injection);
+                    dbHelper.insert(useridx, pos, year, month, text, null, waterdrop, injection);
                 } else {
-                    dbHelper.insert(useridx, pos, month, text, image_byte, waterdrop, injection);
+                    dbHelper.insert(useridx, pos, year, month, text, image_byte, waterdrop, injection);
                 }
 
                 Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();
