@@ -202,17 +202,17 @@ public class CalendarDetail extends AppCompatActivity {
             public void onClick(View view) {
                 System.out.println();
                 text = memo_et.getText().toString();
-                if (image_byte == null){
+                /*if (image_byte == null){
                     dbHelper.insert(useridx, pos, year, month, text, null, waterdrop, injection);
                 } else {
                     dbHelper.insert(useridx, pos, year, month, text, image_byte, waterdrop, injection);
-                }
+                }*/
                 CalendarUpdate(new CalendarUpdateData(year, month, date, text, injection, waterdrop));
 
                 //Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();
 
-                //Intent return_tab = new Intent(CalendarDetail.this, CalendarTab.class);
-                //startActivity(return_tab);
+                Intent return_tab = new Intent(CalendarDetail.this, CalendarTab.class);
+                startActivity(return_tab);
 
             }
         });

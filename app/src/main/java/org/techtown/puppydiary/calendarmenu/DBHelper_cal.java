@@ -81,8 +81,6 @@ public class DBHelper_cal extends SQLiteOpenHelper {
         int resultwaterdrop = 0;
 
 
-        System.out.println("USERIDX CALENDARDB ddd : " + useridx);
-
         // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용
         cursor = db.rawQuery("SELECT waterdrop from caltest WHERE useridx = " + useridx + " and pos = " + pos + " and year = " + year + " and month = " + month + ";", null);
 

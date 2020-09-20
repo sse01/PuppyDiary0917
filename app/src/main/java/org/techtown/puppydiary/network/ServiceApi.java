@@ -142,10 +142,10 @@ public interface ServiceApi {
     Call<MyinfoResponse> myinfo (@Body MyinfoData data);
 
     @GET("/canlendar/show/{year}/{month}") //달력 월별 조회
-    Call<ShowMonthResponse> showmonth (@Path("year") int year, @Path("month") int month, @Body ShowMonthData data);
+    Call<ShowMonthResponse> showmonth (@Path("year") int year, @Path("month") int month);
 
     @GET("/canlendar/show/{year}/{month}/{date}") //달력 일일 조회
-    Call<ShowDayResponse> showday (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Body ShowDayData data);
+    Call<ShowDayResponse> showday (@Path("year") int year, @Path("month") int month, @Path("date") int date);
 
     @POST("/canlendar/{year}/{month}/{date}/photo") //달력 사진 업로드
     Call<CalendarPhotoResponse> calendarphoto (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Body CalendarPhotoData data);
@@ -153,14 +153,14 @@ public interface ServiceApi {
     @POST("/calendar/update") //달력 update
     Call<CalendarUpdateResponse> calendarupdate (@Body CalendarUpdateData data);
 
-    @GET("/kg/show{year}") //달력 월별 조회
-    Call<ShowKgResponse> showkg (@Path("year") int year, @Body ShowKgData data);
+    @GET("/kg/show/{year}") //kg 조회
+    Call<ShowKgResponse> showkg (@Path("year") int year);
 
     @POST("/kg/update") //kg update
     Call<KgupdateResponse> kgupdate (@Body KgupdateData data);
 
     @GET("/account/show/{year}/{month}/{date}") //가계부 조회
-    Call<ShowAccountResponse> showaccount (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Body ShowAccountData data);
+    Call<ShowAccountResponse> showaccount (@Path("year") int year, @Path("month") int month, @Path("date") int date);
 
     @POST("/account/update") //가계부 업데이트
     Call<AccountUpdateResponse> accountupdate (@Body AccountUpdateData data);

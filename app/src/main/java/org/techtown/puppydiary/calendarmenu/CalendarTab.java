@@ -163,11 +163,12 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
 
         dayList = new ArrayList<DayInfo>();
 
+        service = RetrofitClient.getClient().create(ServiceApi.class);
+
         mCal = Calendar.getInstance();
         mCal.set(Calendar.DAY_OF_MONTH, 1);
         getCalendar(mCal);
 
-        service = RetrofitClient.getClient().create(ServiceApi.class);
 
     }
 
@@ -235,10 +236,12 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             dayList.add(day);
         }
 
+        ShowMonth(new ShowMonthData(year, month));
+
         gridAdapter = new GridAdapter(this, R.layout.item_calendar, dayList);
         gridView.setAdapter(gridAdapter);
 
-        ShowMonth(new ShowMonthData(year, month));
+
 
     }
 
@@ -250,12 +253,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         //해당 월에 해당하는 날짜일 때
         if(day.isInMonth()) {
             //Toast.makeText(getApplicationContext(),""+position, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(CalendarTab.this, CalendarDetail.class);
-            intent.putExtra("pos", position);
-            intent.putExtra("year", year);
-            intent.putExtra("month", month);
-            intent.putExtra("date", date);
-            startActivity(intent);
 
             ShowDay(new ShowDayData(year, month, date));
         }
@@ -413,11 +410,11 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     }
 
     private void ShowMonth(ShowMonthData data){
-        service.showmonth(year, month, data).enqueue(new Callback<ShowMonthResponse>() {
+        service.showmonth(year, month).enqueue(new Callback<ShowMonthResponse>() {
             @Override
             public void onResponse(Call<ShowMonthResponse> call, Response<ShowMonthResponse> response) {
                 ShowMonthResponse result = response.body();
-                Toast.makeText(CalendarTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(CalendarTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -429,13 +426,17 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     }
 
     private void ShowDay(ShowDayData data){
-        service.showday(year, month, date, data).enqueue(new Callback<ShowDayResponse>() {
+        service.showday(year, month, date).enqueue(new Callback<ShowDayResponse>() {
             @Override
             public void onResponse(Call<ShowDayResponse> call, Response<ShowDayResponse> response) {
                 ShowDayResponse result = response.body();
-                Toast.makeText(CalendarTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(CalendarTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
 
                 Intent intent_day = new Intent(getApplicationContext(), CalendarDetail.class);
+                //intent_day.putExtra("pos", position);
+                intent_day.putExtra("year", year);
+                intent_day.putExtra("month", month);
+                intent_day.putExtra("date", date);
                 startActivityForResult(intent_day, 2000);
             }
 

@@ -389,7 +389,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
     private void ShowAccount(ShowAccountData data){
-        service.showaccount(year_money, month_money, day_money, data).enqueue(new Callback<ShowAccountResponse>() {
+        service.showaccount(year_money, month_money, day_money).enqueue(new Callback<ShowAccountResponse>() {
             @Override
             public void onResponse(Call<ShowAccountResponse> call, Response<ShowAccountResponse> response) {
                 ShowAccountResponse result = response.body();
