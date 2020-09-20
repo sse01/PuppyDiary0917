@@ -25,7 +25,7 @@ public class KgupdateResponse {
     private String nov;
     private String dec;
     private String month;
-    private String kg;
+    private Double kg;
 
 
     public int getStatus(){
@@ -122,8 +122,8 @@ public class KgupdateResponse {
         return month;
     }
 
-    public String getKg(){
-        kg = data.getAsJsonObject().get("kg").getAsString();
+    public Double getKg(){
+        kg = data.getAsJsonObject().get("kg").getAsDouble();
         return kg;
     }
 

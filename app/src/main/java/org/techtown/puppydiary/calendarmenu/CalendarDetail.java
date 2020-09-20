@@ -31,11 +31,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.R;
+import org.techtown.puppydiary.network.Data.CalendarUpdateData;
+import org.techtown.puppydiary.network.Response.CalendarUpdateResponse;
+import org.techtown.puppydiary.network.Response.ShowDayResponse;
 import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.RetrofitClient;
+import org.techtown.puppydiary.network.ServiceApi;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CalendarDetail extends AppCompatActivity {
 
@@ -60,6 +69,8 @@ public class CalendarDetail extends AppCompatActivity {
 
     TextView tv_date;
 
+    private ServiceApi service;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +86,8 @@ public class CalendarDetail extends AppCompatActivity {
         //final int useridx = userinfo.load(getApplicationContext());
         final int useridx = 0;
 
+        service = RetrofitClient.getClient().create(ServiceApi.class);
+
         tv_date = (TextView) findViewById(R.id.tv_date);
         waterdrop_btn = findViewById(R.id.waterdrop_detail);
         waterdrop_btn2 = findViewById(R.id.waterdrop_color);
@@ -84,6 +97,7 @@ public class CalendarDetail extends AppCompatActivity {
 
         waterdrop = dbHelper.getResult_waterdrop(useridx, pos, year, month);
         injection = dbHelper.getResult_injection(useridx, pos, year, month);
+
 
         tv_date.setText(year + ". " + month + ". " + date);
 
@@ -193,12 +207,12 @@ public class CalendarDetail extends AppCompatActivity {
                 } else {
                     dbHelper.insert(useridx, pos, year, month, text, image_byte, waterdrop, injection);
                 }
+                CalendarUpdate(new CalendarUpdateData(year, month, date, text, injection, waterdrop));
 
-                Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();
 
-                System.out.println("after save : " + image_byte);
-                Intent return_tab = new Intent(CalendarDetail.this, CalendarTab.class);
-                startActivity(return_tab);
+                //Intent return_tab = new Intent(CalendarDetail.this, CalendarTab.class);
+                //startActivity(return_tab);
 
             }
         });
@@ -237,6 +251,25 @@ public class CalendarDetail extends AppCompatActivity {
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void CalendarUpdate(CalendarUpdateData data){
+        service.calendarupdate(data).enqueue(new Callback<CalendarUpdateResponse>() {
+            @Override
+            public void onResponse(Call<CalendarUpdateResponse> call, Response<CalendarUpdateResponse> response) {
+                CalendarUpdateResponse result = response.body();
+                Toast.makeText(CalendarDetail.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+
+                Intent intent_month = new Intent(getApplicationContext(), CalendarTab.class);
+                startActivityForResult(intent_month, 2000);
+            }
+
+            @Override
+            public void onFailure(Call<CalendarUpdateResponse> call, Throwable t) {
+                Toast.makeText(CalendarDetail.this, "달력 업데이트 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("달력 업데이트 에러 발생", t.getMessage());
+            }
+        });
     }
 
 }

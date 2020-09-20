@@ -7,23 +7,39 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.Login;
 import org.techtown.puppydiary.Pwd;
+import org.techtown.puppydiary.calendarmenu.DBHelper_cal;
+import org.techtown.puppydiary.network.Data.AccountUpdateData;
+import org.techtown.puppydiary.network.Data.CalendarPhotoData;
+import org.techtown.puppydiary.network.Data.CalendarUpdateData;
 import org.techtown.puppydiary.network.Data.CheckemailData;
 import org.techtown.puppydiary.network.Data.FindpwData;
 import org.techtown.puppydiary.network.Data.KgupdateData;
 import org.techtown.puppydiary.network.Data.MyinfoData;
 import org.techtown.puppydiary.network.Data.ProfileData;
 import org.techtown.puppydiary.network.Data.RegisterData;
+import org.techtown.puppydiary.network.Data.ShowAccountData;
+import org.techtown.puppydiary.network.Data.ShowDayData;
+import org.techtown.puppydiary.network.Data.ShowKgData;
+import org.techtown.puppydiary.network.Data.ShowMonthData;
 import org.techtown.puppydiary.network.Data.SigninData;
 import org.techtown.puppydiary.network.Data.SignupData;
 import org.techtown.puppydiary.network.Data.UpdatepwData;
+import org.techtown.puppydiary.network.Response.AccountUpdateResponse;
+import org.techtown.puppydiary.network.Response.CalendarPhotoResponse;
+import org.techtown.puppydiary.network.Response.CalendarUpdateResponse;
 import org.techtown.puppydiary.network.Response.CheckemailResponse;
 import org.techtown.puppydiary.network.Response.FindpwResponse;
 import org.techtown.puppydiary.network.Response.KgupdateResponse;
 import org.techtown.puppydiary.network.Response.MyinfoResponse;
 import org.techtown.puppydiary.network.Response.ProfileResponse;
 import org.techtown.puppydiary.network.Response.RegisterResponse;
+import org.techtown.puppydiary.network.Response.ShowAccountResponse;
+import org.techtown.puppydiary.network.Response.ShowDayResponse;
+import org.techtown.puppydiary.network.Response.ShowKgResponse;
+import org.techtown.puppydiary.network.Response.ShowMonthResponse;
 import org.techtown.puppydiary.network.Response.SigninResponse;
 import org.techtown.puppydiary.network.Response.SignupResponse;
 import org.techtown.puppydiary.network.Response.UpdatepwResponse;
@@ -43,6 +59,7 @@ import retrofit2.http.Header;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface ServiceApi {
 
@@ -124,9 +141,30 @@ public interface ServiceApi {
     @GET("/mypage/myinfo") //강아지 정보 조회
     Call<MyinfoResponse> myinfo (@Body MyinfoData data);
 
+    @GET("/canlendar/show/{year}/{month}") //달력 월별 조회
+    Call<ShowMonthResponse> showmonth (@Path("year") int year, @Path("month") int month, @Body ShowMonthData data);
 
-    @POST("/kg/update") //로그인
+    @GET("/canlendar/show/{year}/{month}/{date}") //달력 일일 조회
+    Call<ShowDayResponse> showday (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Body ShowDayData data);
+
+    @POST("/canlendar/{year}/{month}/{date}/photo") //달력 사진 업로드
+    Call<CalendarPhotoResponse> calendarphoto (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Body CalendarPhotoData data);
+
+    @POST("/calendar/update") //달력 update
+    Call<CalendarUpdateResponse> calendarupdate (@Body CalendarUpdateData data);
+
+    @GET("/kg/show{year}") //달력 월별 조회
+    Call<ShowKgResponse> showkg (@Path("year") int year, @Body ShowKgData data);
+
+    @POST("/kg/update") //kg update
     Call<KgupdateResponse> kgupdate (@Body KgupdateData data);
+
+    @GET("/account/show/{year}/{month}/{date}") //가계부 조회
+    Call<ShowAccountResponse> showaccount (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Body ShowAccountData data);
+
+    @POST("/account/update") //가계부 업데이트
+    Call<AccountUpdateResponse> accountupdate (@Body AccountUpdateData data);
+
 }
 
 

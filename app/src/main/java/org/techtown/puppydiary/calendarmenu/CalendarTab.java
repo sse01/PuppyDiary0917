@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -26,6 +27,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.techtown.puppydiary.DBHelper_user;
+import org.techtown.puppydiary.Login;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
 import org.techtown.puppydiary.MypuppyTab;
@@ -34,10 +36,20 @@ import org.techtown.puppydiary.SetPuppy;
 import org.techtown.puppydiary.accountmenu.MoneyEdit;
 import org.techtown.puppydiary.accountmenu.MoneyTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
+import org.techtown.puppydiary.network.Data.ShowDayData;
+import org.techtown.puppydiary.network.Data.ShowMonthData;
+import org.techtown.puppydiary.network.Response.ShowDayResponse;
+import org.techtown.puppydiary.network.Response.ShowMonthResponse;
 import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.RetrofitClient;
+import org.techtown.puppydiary.network.ServiceApi;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CalendarTab extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
@@ -76,6 +88,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     int year = 0;
     int month = 0;
     int date = 0;
+
+    private ServiceApi service;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,6 +166,9 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         mCal = Calendar.getInstance();
         mCal.set(Calendar.DAY_OF_MONTH, 1);
         getCalendar(mCal);
+
+        service = RetrofitClient.getClient().create(ServiceApi.class);
+
     }
 
     //캘린더 구현
@@ -221,6 +238,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         gridAdapter = new GridAdapter(this, R.layout.item_calendar, dayList);
         gridView.setAdapter(gridAdapter);
 
+        ShowMonth(new ShowMonthData(year, month));
+
     }
 
     @Override
@@ -237,6 +256,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             intent.putExtra("month", month);
             intent.putExtra("date", date);
             startActivity(intent);
+
+            ShowDay(new ShowDayData(year, month, date));
         }
 
     }
@@ -389,5 +410,40 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         {
             this.inMonth = inMonth;
         } //정보저장
+    }
+
+    private void ShowMonth(ShowMonthData data){
+        service.showmonth(year, month, data).enqueue(new Callback<ShowMonthResponse>() {
+            @Override
+            public void onResponse(Call<ShowMonthResponse> call, Response<ShowMonthResponse> response) {
+                ShowMonthResponse result = response.body();
+                Toast.makeText(CalendarTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<ShowMonthResponse> call, Throwable t) {
+                Toast.makeText(CalendarTab.this, "달력 월별 조회 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("달력 월별 조회 에러 발생", t.getMessage());
+            }
+        });
+    }
+
+    private void ShowDay(ShowDayData data){
+        service.showday(year, month, date, data).enqueue(new Callback<ShowDayResponse>() {
+            @Override
+            public void onResponse(Call<ShowDayResponse> call, Response<ShowDayResponse> response) {
+                ShowDayResponse result = response.body();
+                Toast.makeText(CalendarTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+
+                Intent intent_day = new Intent(getApplicationContext(), CalendarDetail.class);
+                startActivityForResult(intent_day, 2000);
+            }
+
+            @Override
+            public void onFailure(Call<ShowDayResponse> call, Throwable t) {
+                Toast.makeText(CalendarTab.this, "달력 일일 조회 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("달력 일일 조회 에러 발생", t.getMessage());
+            }
+        });
     }
 }

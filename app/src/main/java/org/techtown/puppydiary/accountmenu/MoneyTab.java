@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +26,27 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.techtown.puppydiary.DBHelper_user;
+import org.techtown.puppydiary.Login;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
 import org.techtown.puppydiary.MypuppyTab;
 import org.techtown.puppydiary.R;
+import org.techtown.puppydiary.network.Data.AccountUpdateData;
+import org.techtown.puppydiary.network.Data.ShowAccountData;
+import org.techtown.puppydiary.network.Response.AccountUpdateResponse;
+import org.techtown.puppydiary.network.Response.ShowAccountResponse;
 import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.RetrofitClient;
+import org.techtown.puppydiary.network.ServiceApi;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private static final String TAG = "MainActivity";
@@ -73,7 +85,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
     ListAdapter adapter;
     ListView listview;
 
-    SigninResponse userinfo = new SigninResponse();
+    private ServiceApi service;
 
 
     @Override
@@ -130,6 +142,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         //final int useridx = userinfo.load(getApplicationContext());
         final int useridx = 0;
 
+        service = RetrofitClient.getClient().create(ServiceApi.class);
 
         listview = findViewById(R.id.accountlist);
         listview.setOnItemClickListener(this);
@@ -165,6 +178,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
             month_money = after_month;
             day_money = after_day;
             tv_date.setText(year_money + "/" + month_money + "/" + day_money);
+            ShowAccount(new ShowAccountData());
             itemArray.clear();
             CursorToArray();
             adapter.setArrayList(itemArray);
@@ -181,6 +195,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
             year_money = myCalendar.get(Calendar.YEAR);
             month_money = myCalendar.get(Calendar.MONTH) + 1;
             day_money = myCalendar.get(Calendar.DAY_OF_MONTH);
+            ShowAccount(new ShowAccountData());
             itemArray.clear();
             CursorToArray();
             adapter.setArrayList(itemArray);
@@ -201,6 +216,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                 year_money = myCalendar.get(Calendar.YEAR);
                 month_money = myCalendar.get(Calendar.MONTH) + 1;
                 day_money = myCalendar.get(Calendar.DAY_OF_MONTH);
+                ShowAccount(new ShowAccountData());
                 itemArray.clear();
                 CursorToArray();
                 adapter.setArrayList(itemArray);
@@ -234,7 +250,8 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                         break;
                     }
                     default : {
-                        dbHelper.insert(useridx, year_money, month_money, day_money, price, memo);
+                        //dbHelper.insert(useridx, year_money, month_money, day_money, price, memo);
+                        AccountUpdate(new AccountUpdateData(year_money, month_money, day_money, memo, price));
                         itemArray.clear();
                         CursorToArray();
                         adapter.setArrayList(itemArray);
@@ -371,5 +388,36 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         }
     }
 
+    private void ShowAccount(ShowAccountData data){
+        service.showaccount(year_money, month_money, day_money, data).enqueue(new Callback<ShowAccountResponse>() {
+            @Override
+            public void onResponse(Call<ShowAccountResponse> call, Response<ShowAccountResponse> response) {
+                ShowAccountResponse result = response.body();
+                Toast.makeText(MoneyTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<ShowAccountResponse> call, Throwable t) {
+                Toast.makeText(MoneyTab.this, "가계부 조회 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("가계부 조회 에러 발생", t.getMessage());
+            }
+        });
+    }
+
+    private void AccountUpdate(AccountUpdateData data){
+        service.accountupdate(data).enqueue(new Callback<AccountUpdateResponse>() {
+            @Override
+            public void onResponse(Call<AccountUpdateResponse> call, Response<AccountUpdateResponse> response) {
+                AccountUpdateResponse result = response.body();
+                Toast.makeText(MoneyTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<AccountUpdateResponse> call, Throwable t) {
+                Toast.makeText(MoneyTab.this, "가계부 업데이트 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("가계부 업데이트 에러 발생", t.getMessage());
+            }
+        });
+    }
 
 }
