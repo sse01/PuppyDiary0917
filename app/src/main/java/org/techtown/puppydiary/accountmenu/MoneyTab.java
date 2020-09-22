@@ -25,7 +25,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.Login;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
@@ -35,6 +34,7 @@ import org.techtown.puppydiary.network.Data.AccountUpdateData;
 import org.techtown.puppydiary.network.Data.ShowAccountData;
 import org.techtown.puppydiary.network.Response.AccountUpdateResponse;
 import org.techtown.puppydiary.network.Response.ShowAccountResponse;
+import org.techtown.puppydiary.network.Response.ShowMonthResponse;
 import org.techtown.puppydiary.network.Response.SigninResponse;
 import org.techtown.puppydiary.network.RetrofitClient;
 import org.techtown.puppydiary.network.ServiceApi;
@@ -42,6 +42,7 @@ import org.techtown.puppydiary.network.ServiceApi;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -77,7 +78,6 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
 
     int position = 0;
 
-    DBHelper_money dbHelper = null;
     Cursor cursor;
     EditText[] EditTexts;
     MoneytabItem items;
@@ -155,8 +155,6 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         itemArray = new ArrayList<MoneytabItem>();
         adapter = new ListAdapter(this, itemArray);
 
-
-        dbHelper = new DBHelper_money(getApplicationContext(), "dbmoneytest.db", null, 1);
         EditTexts = new EditText[]{
                 (EditText) findViewById(R.id.edit_context),
                 (EditText) findViewById(R.id.edit_price)
@@ -165,43 +163,13 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
 
         // 아이템 수정, 삭제 후 해당 날짜로 돌아오기
         Intent intent_after = new Intent(getIntent());
-        int after_position = intent_after.getIntExtra("after_position", 0);
-        int after_year = intent_after.getIntExtra("after_year", 0);
-        int after_month = intent_after.getIntExtra("after_month", 0);
-        int after_day = intent_after.getIntExtra("after_day", 0);
-        String after_memo = intent_after.getStringExtra("after_memo");
-        int after_price = intent_after.getIntExtra("after_price", 0);
 
-        if(after_year != 0){
-            //edit, delete 후 화면
-            year_money = after_year;
-            month_money = after_month;
-            day_money = after_day;
-            tv_date.setText(year_money + "/" + month_money + "/" + day_money);
-            ShowAccount(new ShowAccountData());
-            itemArray.clear();
-            CursorToArray();
-            adapter.setArrayList(itemArray);
-            //items = new MoneytabItem(after_memo, after_price);
-            //itemArray.add(after_position-1, items);
-            //int trash = dbHelper.getCount(year_money, month_money, day_money);
-            //itemArray.remove(trash-1);
-            tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
-            listview.setAdapter(adapter);
-        } else {
-            // 기본 시작화면 : 오늘날짜 세팅
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/M/d", Locale.KOREA);
-            tv_date.setText(sdf.format(myCalendar.getTime()));
-            year_money = myCalendar.get(Calendar.YEAR);
-            month_money = myCalendar.get(Calendar.MONTH) + 1;
-            day_money = myCalendar.get(Calendar.DAY_OF_MONTH);
-            ShowAccount(new ShowAccountData());
-            itemArray.clear();
-            CursorToArray();
-            adapter.setArrayList(itemArray);
-            listview.setAdapter(adapter);
-            tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
-        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/M/d", Locale.KOREA);
+        tv_date.setText(sdf.format(myCalendar.getTime()));
+        year_money = myCalendar.get(Calendar.YEAR);
+        month_money = myCalendar.get(Calendar.MONTH) + 1;
+        day_money = myCalendar.get(Calendar.DAY_OF_MONTH);
+        ShowAccount();
 
 
         // 날짜 선택 -> 날짜에 해당하는 아이템들 보여줌
@@ -216,12 +184,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                 year_money = myCalendar.get(Calendar.YEAR);
                 month_money = myCalendar.get(Calendar.MONTH) + 1;
                 day_money = myCalendar.get(Calendar.DAY_OF_MONTH);
-                ShowAccount(new ShowAccountData());
-                itemArray.clear();
-                CursorToArray();
-                adapter.setArrayList(itemArray);
-                tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
-                listview.setAdapter(adapter);
+                ShowAccount();
             }
         };
 
@@ -240,34 +203,18 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
             @Override
             public void onClick(View view) {
                 memo = et_memo.getText().toString();
-                //price = et_price.getText().toString();
                 price = Integer.parseInt(et_price.getText().toString());
-
-                //중복체크
-                switch (dbHelper.check(useridx, year_money, month_money, day_money, price, memo)){
-                    case 1 : {
-                        Toast.makeText(getApplicationContext(), "중복 항목이 존재합니다.", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                    default : {
-                        //dbHelper.insert(useridx, year_money, month_money, day_money, price, memo);
-                        AccountUpdate(new AccountUpdateData(year_money, month_money, day_money, memo, price));
-                        itemArray.clear();
-                        CursorToArray();
-                        adapter.setArrayList(itemArray);
-                        adapter.notifyDataSetChanged();
-                        tv_total.setText(dbHelper.getSum(useridx, year_money, month_money, day_money) + "원");
-
-                        et_memo.getText().clear();
-                        et_price.getText().clear();
-                        // 저장 버튼 누른 후 키보드 안보이게 하기
-                        InputMethodManager imm =
-                                (InputMethodManager) getSystemService( Context.INPUT_METHOD_SERVICE );
-                        imm.hideSoftInputFromWindow(et_price.getWindowToken(), 0 );
-                    }
-                }
-
+                AccountUpdate(new AccountUpdateData(year_money, month_money, day_money, memo, price));
+                ShowAccount();
+                //adapter.notifyDataSetChanged();
+                et_memo.getText().clear();
+                et_price.getText().clear();
+                // 저장 버튼 누른 후 키보드 안보이게 하기
+                InputMethodManager imm =
+                        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(et_price.getWindowToken(), 0);
             }
+
         });
     }
 
@@ -284,6 +231,8 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         intent.putExtra("year", setyear);
         intent.putExtra("month", setmonth);
         intent.putExtra("day", setday);
+        intent.putExtra("memo", memo);
+        intent.putExtra("price", price);
         startActivity(intent);
 
     }
@@ -298,30 +247,6 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
             this.memo = memo;
             this.price = price;
         }
-
-    }
-
-
-    private void CursorToArray() {
-
-
-        //final int useridx = userinfo.load(getApplicationContext());
-        final int useridx = 0;
-
-        cursor = null;
-        cursor = dbHelper.getResult(useridx, year_money, month_money, day_money);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                items = new MoneytabItem(
-                        cursor.getString(cursor.getColumnIndex("memo")),
-                        cursor.getInt(cursor.getColumnIndex("price"))
-                );
-                itemArray.add(items);
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
 
     }
 
@@ -388,27 +313,50 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         }
     }
 
-    private void ShowAccount(ShowAccountData data){
+    private void ShowAccount() {
         service.showaccount(year_money, month_money, day_money).enqueue(new Callback<ShowAccountResponse>() {
             @Override
             public void onResponse(Call<ShowAccountResponse> call, Response<ShowAccountResponse> response) {
-                ShowAccountResponse result = response.body();
-                Toast.makeText(MoneyTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                ShowAccountResponse showaccount = response.body();
+                int sum = 0 ;
+                if (response.isSuccessful()) {
+                    List<ShowAccountResponse.ShowAccount> my = showaccount.getData();
+                    itemArray.clear();
+                    if(my != null) {
+                        for (int i = 0; i < my.size(); i++) {
+                            memo = my.get(i).getItem();
+                            price = my.get(i).getPrice();
+                            items = new MoneytabItem(memo, price);
+                            itemArray.add(items);
+                            //System.out.println("SHOWaccount!!! " + memo + ", " + price);
+                        }
+                    }
+                    adapter.setArrayList(itemArray);
+                    for(int i=0; i<itemArray.size(); i++) {
+                        sum += itemArray.get(i).price;
+                    }
+                    tv_total.setText(sum + "원");
+                    listview.setAdapter(adapter);
+                    //Toast.makeText(MoneyTab.this, showaccount.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onFailure(Call<ShowAccountResponse> call, Throwable t) {
-                Toast.makeText(MoneyTab.this, "가계부 조회 에러 발생", Toast.LENGTH_SHORT).show();
-                Log.e("가계부 조회 에러 발생", t.getMessage());
+                Toast.makeText(MoneyTab.this, "getcall 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("getcall 에러 발생", t.getMessage());
             }
         });
     }
 
-    private void AccountUpdate(AccountUpdateData data){
+
+    private void AccountUpdate(final AccountUpdateData data){
         service.accountupdate(data).enqueue(new Callback<AccountUpdateResponse>() {
             @Override
             public void onResponse(Call<AccountUpdateResponse> call, Response<AccountUpdateResponse> response) {
                 AccountUpdateResponse result = response.body();
+                List<AccountUpdateResponse.AccountUpdate> my = result.getData();
+                //System.out.println("accountUPDATE!!! : " + my.get(0).getMonth() + my.get(0).getDate());
                 Toast.makeText(MoneyTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
             }
 

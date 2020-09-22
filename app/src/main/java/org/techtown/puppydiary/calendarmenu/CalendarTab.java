@@ -246,9 +246,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             dayList.add(day);
         }
 
-        ShowMonth();
-        //gridAdapter = new GridAdapter(this, R.layout.item_calendar, dayList);
-        //gridView.setAdapter(gridAdapter);
+        gridAdapter = new GridAdapter(getApplicationContext(), R.layout.item_calendar, dayList);
+        gridView.setAdapter(gridAdapter);
 
 
     }
@@ -305,7 +304,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         }
 
         @Override
-        public Object getItem(int position) { return mdayList.get(position); }
+        public Object getItem(int position) { return mdayList.get(showmonth_pos); }
 
         @Override
         public long getItemId(int position) {
@@ -313,10 +312,9 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
 
             //final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "caltest.db", null, 1);
-
             DayInfo day = dayList.get(position);
             ViewHolder holder = null;
             if (convertView == null) {
@@ -331,21 +329,51 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            if (state_waterdrop == 0 && state_injection == 0) {
-                holder.waterdrop.setImageResource(R.drawable.waterdrop);
-                holder.injection.setImageResource(R.drawable.injection);
-            } else if (state_waterdrop == 1 && state_injection == 0) {
-                //물방울만
-                holder.waterdrop.setImageResource(R.drawable.waterdrop_color);
-                holder.injection.setImageResource(R.drawable.injection);
-            } else if (state_waterdrop == 0 && state_injection == 1) {
-                //주사기만
-                holder.waterdrop.setImageResource(R.drawable.waterdrop);
-                holder.injection.setImageResource(R.drawable.injection_color);
-            } else if (state_waterdrop == 1 && state_injection == 1) {
-                holder.waterdrop.setImageResource(R.drawable.waterdrop_color);
-                holder.injection.setImageResource(R.drawable.injection_color);
-            }
+            //기본세팅
+            holder.waterdrop.setImageResource(R.drawable.waterdrop);
+            holder.injection.setImageResource(R.drawable.injection);
+
+            final ViewHolder finalHolder = holder;
+            service.showmonth(year, month).enqueue(new Callback<ShowMonthResponse>() {
+                @Override
+                public void onResponse(Call<ShowMonthResponse> call, Response<ShowMonthResponse> response) {
+                    if (response.isSuccessful()) {
+                        ShowMonthResponse showmonth = response.body();
+                        List<ShowMonthResponse.ShowMonth> my = showmonth.getData();
+                        if (my != null) {
+                            for (int i = 0; i < my.size(); i++) {
+                                showmonth_pos = my.get(i).getDate();
+                                state_waterdrop = my.get(i).getWater();
+                                state_injection = my.get(i).getInject();
+                                if(showmonth_pos == (position-dayOfMonth+2)){
+                                    if (state_waterdrop == 0 && state_injection == 0) {
+                                        finalHolder.waterdrop.setImageResource(R.drawable.waterdrop);
+                                        finalHolder.injection.setImageResource(R.drawable.injection);
+                                    } else if (state_waterdrop == 1 && state_injection == 0) {
+                                        //물방울만
+                                        finalHolder.waterdrop.setImageResource(R.drawable.waterdrop_color);
+                                        finalHolder.injection.setImageResource(R.drawable.injection);
+                                    } else if (state_waterdrop == 0 && state_injection == 1) {
+                                        //주사기만
+                                        finalHolder.waterdrop.setImageResource(R.drawable.waterdrop);
+                                        finalHolder.injection.setImageResource(R.drawable.injection_color);
+                                    } else if (state_waterdrop == 1 && state_injection == 1) {
+                                        finalHolder.waterdrop.setImageResource(R.drawable.waterdrop_color);
+                                        finalHolder.injection.setImageResource(R.drawable.injection_color);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ShowMonthResponse> call, Throwable t) {
+                    Toast.makeText(CalendarTab.this, "getcall 에러 발생", Toast.LENGTH_SHORT).show();
+                    Log.e("getcall 에러 발생", t.getMessage());
+                }
+            });
+
 
             if (day != null) {
                 holder.tvItem.setText(day.getDay());
@@ -398,44 +426,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     }
 
     private void ShowMonth(){
-        service.showmonth(year, month).enqueue(new Callback<ShowMonthResponse>() {
-            @Override
-            public void onResponse(Call<ShowMonthResponse> call, Response<ShowMonthResponse> response) {
-                if (response.isSuccessful()) {
-                    gridAdapter = new GridAdapter(getApplicationContext(), R.layout.item_calendar, dayList);
-                    ShowMonthResponse showmonth = response.body();
-                    List<ShowMonthResponse.ShowMonth> my = showmonth.getData();
 
-                    for(int i=0; i<my.size(); i++) {
-                        showmonth_pos = my.get(i).getDate();
-                        state_injection = my.get(i).getInject();
-                        state_waterdrop = my.get(i).getWater();
-                        gridView.setAdapter(gridAdapter);
-                        System.out.println("SHOWMONTH~!~~!! : " + (month) + ", " + showmonth_pos + ", " + state_waterdrop + ", " + state_injection);
-                    }
-                    /*
-                    for(ShowMonthResponse.ShowMonth showMonth : my){
-                        showmonth_pos = showMonth.getDate();
-                        state_waterdrop = showMonth.getWater();
-                        state_injection = showMonth.getInject();
-                        gridView.setAdapter(gridAdapter);
-                        System.out.println("SHOWMONTH~!~~!! : " + (month) + ", " + showmonth_pos + ", " + state_waterdrop + ", " + state_injection);
-                    }
-
-                        showmonth_pos = my.get(0).getDate();
-                        state_waterdrop = my.get(0).getWater();
-                        state_injection = my.get(0).getInject();
-                        System.out.println("SHOWMONTH~!~~!! : " + (month) + ", " + showmonth_pos + ", " + state_waterdrop + ", " + state_injection);
-                    */
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ShowMonthResponse> call, Throwable t) {
-                Toast.makeText(CalendarTab.this, "getcall 에러 발생", Toast.LENGTH_SHORT).show();
-                Log.e("getcall 에러 발생", t.getMessage());
-            }
-        });
     }
 
     private void ShowDay(ShowDayData data){

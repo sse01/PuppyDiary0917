@@ -33,8 +33,6 @@ public class MoneyEdit extends AppCompatActivity {
     int price = 0;
     String memo = null;
 
-    SigninResponse userinfo = new SigninResponse();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,25 +51,25 @@ public class MoneyEdit extends AppCompatActivity {
         final int useridx = 0;
 
 
-        final DBHelper_money dbHelper = new DBHelper_money(getApplicationContext(), "dbmoneytest.db", null, 1);
+        //final DBHelper_money dbHelper = new DBHelper_money(getApplicationContext(), "dbmoneytest.db", null, 1);
 
         final Intent intent = new Intent(getIntent());
         final int position = intent.getIntExtra("position", 0);
         final int getyear = intent.getIntExtra("year", 0);
         final int getmonth = intent.getIntExtra("month", 0);
         final int getday = intent.getIntExtra("day", 0);
+        final String memo = intent.getStringExtra("memo");
+        final int price = intent.getIntExtra("price", 0);
 
-        getmemo = dbHelper.memo(useridx, position, getyear, getmonth, getday);
-        getprice = dbHelper.price(useridx, position, getyear, getmonth, getday);
 
         final String getdate = getyear + "/" + getmonth + "/" + getday;
 
 
         tv_price = findViewById(R.id.price_data);
-        tv_price.setText(Integer.toString(getprice));
+        tv_price.setText(price);
 
         tv_memo = findViewById(R.id.memo_data);
-        tv_memo.setText(getmemo);
+        tv_memo.setText(memo);
 
         // 날짜 고정 : 수정 불가
         tv_date = findViewById(R.id.date_data);
@@ -106,7 +104,8 @@ public class MoneyEdit extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbHelper.delete(useridx, position, getyear, getmonth, getday);
+
+                //dbHelper.delete(useridx, position, getyear, getmonth, getday);
                 Intent intent_after = new Intent(MoneyEdit.this, MoneyTab.class);
                 intent_after.putExtra("after_year", getyear);
                 intent_after.putExtra("after_month", getmonth);
