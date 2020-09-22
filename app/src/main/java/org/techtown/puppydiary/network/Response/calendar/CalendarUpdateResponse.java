@@ -1,4 +1,4 @@
-package org.techtown.puppydiary.network.Response;
+package org.techtown.puppydiary.network.Response.calendar;
 
 import com.google.gson.JsonArray;
 

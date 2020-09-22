@@ -1,6 +1,6 @@
-package org.techtown.puppydiary.network.Data;
+package org.techtown.puppydiary.network.Data.account;
 
-public class AccountUpdateData {
+public class InsertAccountData {
 
     private int year;
     private int month;
@@ -8,11 +8,12 @@ public class AccountUpdateData {
     private String item;
     private int price;
 
-    public AccountUpdateData(int year, int month, int date, String item, int price){
+    public InsertAccountData(int year, int month, int date, String item, int price){
         this.year = year;
         this.month = month;
         this.date = date;
         this.item = item;
         this.price = price;
     }
+
 }

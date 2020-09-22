@@ -15,8 +15,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.techtown.puppydiary.R;
-import org.techtown.puppydiary.network.Data.AccountUpdateData;
-import org.techtown.puppydiary.network.Response.AccountUpdateResponse;
+import org.techtown.puppydiary.network.Data.account.AccountUpdateData;
+import org.techtown.puppydiary.network.Response.account.AccountUpdateResponse;
+import org.techtown.puppydiary.network.Response.account.DeleteAccountResponse;
 import org.techtown.puppydiary.network.RetrofitClient;
 import org.techtown.puppydiary.network.ServiceApi;
 
@@ -36,6 +37,7 @@ public class MoneyEdit extends AppCompatActivity {
     EditText et_price;
     EditText et_memo;
 
+    int idx = 0;
     int getyear = 0;
     int getmonth = 0;
     int getday = 0;
@@ -60,6 +62,7 @@ public class MoneyEdit extends AppCompatActivity {
         service = RetrofitClient.getClient().create(ServiceApi.class);
 
         final Intent intent = new Intent(getIntent());
+        idx = intent.getIntExtra("idx", 0);
         getyear = intent.getIntExtra("year", 0);
         getmonth = intent.getIntExtra("month", 0);
         getday = intent.getIntExtra("day", 0);
@@ -104,26 +107,46 @@ public class MoneyEdit extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                DeleteAccount();
                 //dbHelper.delete(useridx, position, getyear, getmonth, getday);
                 Intent intent_after = new Intent(MoneyEdit.this, MoneyTab.class);
                 intent_after.putExtra("after_year", getyear);
                 intent_after.putExtra("after_month", getmonth);
                 intent_after.putExtra("after_day", getday);
                 startActivity(intent_after);
-                Toast toastView = Toast.makeText(getApplicationContext(), "삭제되었습니다" , Toast.LENGTH_LONG);
-                toastView.show();
             }
         });
     }
 
-    private void AccountUpdate(final AccountUpdateData data){
-        service.accountupdate(data).enqueue(new Callback<AccountUpdateResponse>() {
+    private void AccountUpdate(AccountUpdateData data){
+        service.accountupdate(idx, data).enqueue(new Callback<AccountUpdateResponse>() {
             @Override
             public void onResponse(Call<AccountUpdateResponse> call, Response<AccountUpdateResponse> response) {
                 AccountUpdateResponse result = response.body();
-                //List<AccountUpdateResponse.AccountUpdate> my = result.getData();
-                //System.out.println("accountUPDATE!!! : " + my.get(0).getMonth() + my.get(0).getDate());
+                List<AccountUpdateResponse.AccountUpdate> my = result.getData();
+                if(result.getSuccess() == true){
+                    Intent intent_after = new Intent(MoneyEdit.this, MoneyTab.class);
+                    intent_after.putExtra("after_year", getyear);
+                    intent_after.putExtra("after_month", getmonth);
+                    intent_after.putExtra("after_day", getday);
+                    startActivity(intent_after);
+                }
+                Toast.makeText(MoneyEdit.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<AccountUpdateResponse> call, Throwable t) {
+                Toast.makeText(MoneyEdit.this, "가계부 수정 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("가계부 수정 에러 발생", t.getMessage());
+            }
+        });
+    }
+
+    private void DeleteAccount(){
+        service.deleteaccount(idx).enqueue(new Callback<DeleteAccountResponse>() {
+            @Override
+            public void onResponse(Call<DeleteAccountResponse> call, Response<DeleteAccountResponse> response) {
+                DeleteAccountResponse result = response.body();
                 Toast.makeText(MoneyEdit.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                 if(result.getSuccess() == true){
                     Intent intent_after = new Intent(MoneyEdit.this, MoneyTab.class);
@@ -135,9 +158,9 @@ public class MoneyEdit extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<AccountUpdateResponse> call, Throwable t) {
-                Toast.makeText(MoneyEdit.this, "가계부 업데이트 에러 발생", Toast.LENGTH_SHORT).show();
-                Log.e("가계부 업데이트 에러 발생", t.getMessage());
+            public void onFailure(Call<DeleteAccountResponse> call, Throwable t) {
+                Toast.makeText(MoneyEdit.this, "가계부 삭제 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("가계부 삭제 에러 발생", t.getMessage());
             }
         });
     }

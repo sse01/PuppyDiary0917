@@ -3,11 +3,9 @@ package org.techtown.puppydiary.accountmenu;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,17 +23,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.techtown.puppydiary.Login;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
 import org.techtown.puppydiary.MypuppyTab;
 import org.techtown.puppydiary.R;
-import org.techtown.puppydiary.network.Data.AccountUpdateData;
-import org.techtown.puppydiary.network.Data.ShowAccountData;
-import org.techtown.puppydiary.network.Response.AccountUpdateResponse;
-import org.techtown.puppydiary.network.Response.ShowAccountResponse;
-import org.techtown.puppydiary.network.Response.ShowMonthResponse;
-import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.Data.account.AccountUpdateData;
+import org.techtown.puppydiary.network.Data.account.InsertAccountData;
+import org.techtown.puppydiary.network.Response.account.AccountUpdateResponse;
+import org.techtown.puppydiary.network.Response.account.CheckAccountResponse;
+import org.techtown.puppydiary.network.Response.account.InsertAccountResponse;
+import org.techtown.puppydiary.network.Response.account.ShowAccountResponse;
 import org.techtown.puppydiary.network.RetrofitClient;
 import org.techtown.puppydiary.network.ServiceApi;
 
@@ -75,6 +72,8 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
     int year_money = 0;
     int month_money = 0;
     int day_money = 0;
+
+    int idx = 0;
 
     int position = 0;
 
@@ -139,9 +138,6 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         });
 
 
-        //final int useridx = userinfo.load(getApplicationContext());
-        final int useridx = 0;
-
         service = RetrofitClient.getClient().create(ServiceApi.class);
 
         listview = findViewById(R.id.accountlist);
@@ -167,10 +163,9 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         int after_month = intent_after.getIntExtra("after_month", 0);
         int after_day = intent_after.getIntExtra("after_day", 0);
 
-
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/M/d", Locale.KOREA);
         if(after_year != 0){
-            tv_date.setText(sdf.format(after_year+"/"+after_month+"/"+after_day));
+            tv_date.setText(after_year+"/"+after_month+"/"+after_day);
             year_money = after_year;
             month_money = after_month;
             day_money = after_day;
@@ -215,8 +210,7 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
             public void onClick(View view) {
                 memo = et_memo.getText().toString();
                 price = Integer.parseInt(et_price.getText().toString());
-                AccountUpdate(new AccountUpdateData(year_money, month_money, day_money, memo, price));
-                ShowAccount();
+                InsertAccount(new InsertAccountData(year_money, month_money, day_money, memo, price));
                 //adapter.notifyDataSetChanged();
                 et_memo.getText().clear();
                 et_price.getText().clear();
@@ -232,19 +226,9 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-        int setyear = year_money;
-        int setmonth = month_money;
-        int setday = day_money;
         memo = itemArray.get(i).memo;
         price = itemArray.get(i).price;
-
-        Intent intent = new Intent(MoneyTab.this, MoneyEdit.class);
-        intent.putExtra("year", setyear);
-        intent.putExtra("month", setmonth);
-        intent.putExtra("day", setday);
-        intent.putExtra("memo", memo);
-        intent.putExtra("price", price);
-        startActivity(intent);
+        CheckAccount(memo, price);
 
     }
 
@@ -339,7 +323,6 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                             price = my.get(i).getPrice();
                             items = new MoneytabItem(memo, price);
                             itemArray.add(items);
-                            //System.out.println("SHOWaccount!!! " + memo + ", " + price);
                         }
                     }
                     adapter.setArrayList(itemArray);
@@ -348,7 +331,6 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
                     }
                     tv_total.setText(sum + "원");
                     listview.setAdapter(adapter);
-                    //Toast.makeText(MoneyTab.this, showaccount.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -361,20 +343,45 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
-    private void AccountUpdate(final AccountUpdateData data){
-        service.accountupdate(data).enqueue(new Callback<AccountUpdateResponse>() {
+    private void InsertAccount(InsertAccountData data){
+        service.insertaccount(data).enqueue(new Callback<InsertAccountResponse>() {
             @Override
-            public void onResponse(Call<AccountUpdateResponse> call, Response<AccountUpdateResponse> response) {
-                AccountUpdateResponse result = response.body();
-                List<AccountUpdateResponse.AccountUpdate> my = result.getData();
-                //System.out.println("accountUPDATE!!! : " + my.get(0).getMonth() + my.get(0).getDate());
+            public void onResponse(Call<InsertAccountResponse> call, Response<InsertAccountResponse> response) {
+                InsertAccountResponse result = response.body();
+                ShowAccount();
                 Toast.makeText(MoneyTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onFailure(Call<AccountUpdateResponse> call, Throwable t) {
+            public void onFailure(Call<InsertAccountResponse> call, Throwable t) {
                 Toast.makeText(MoneyTab.this, "가계부 업데이트 에러 발생", Toast.LENGTH_SHORT).show();
                 Log.e("가계부 업데이트 에러 발생", t.getMessage());
+            }
+        });
+    }
+
+    private void CheckAccount(String item, final int price) {
+        service.checkaccount(year_money, month_money, day_money, item, price).enqueue(new Callback<CheckAccountResponse>() {
+            @Override
+            public void onResponse(Call<CheckAccountResponse> call, Response<CheckAccountResponse> response) {
+                CheckAccountResponse checkaccount = response.body();
+                if(response.isSuccessful()){
+                    idx = checkaccount.getData();
+                    Intent intent = new Intent(MoneyTab.this, MoneyEdit.class);
+                    intent.putExtra("idx", idx);
+                    intent.putExtra("year", year_money);
+                    intent.putExtra("month", month_money);
+                    intent.putExtra("day", day_money);
+                    intent.putExtra("memo", memo);
+                    intent.putExtra("price", price);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CheckAccountResponse> call, Throwable t) {
+                Toast.makeText(MoneyTab.this, "check idx 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("check idx 에러 발생", t.getMessage());
             }
         });
     }

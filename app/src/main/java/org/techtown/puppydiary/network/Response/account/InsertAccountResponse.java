@@ -1,15 +1,13 @@
-package org.techtown.puppydiary.network.Response;
-
-import com.google.gson.JsonArray;
+package org.techtown.puppydiary.network.Response.account;
 
 import java.util.List;
 
-public class ShowAccountResponse {
+public class InsertAccountResponse {
 
     private int status;
     private boolean success;
     private String message;
-    private List<ShowAccount> data;
+    private List<InsertAccount> data;
 
 
     public int getStatus(){
@@ -24,9 +22,9 @@ public class ShowAccountResponse {
         return message;
     }
 
-    public List<ShowAccount> getData(){ return data; }
+    public List<InsertAccount> getData(){ return data; }
 
-    public class ShowAccount{
+    public class InsertAccount{
         private int idaccount;
         private int userIdx;
         private int year;
@@ -70,8 +68,6 @@ public class ShowAccountResponse {
             return price;
         }
 
-
     }
-
 
 }

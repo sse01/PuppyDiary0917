@@ -1,62 +1,42 @@
 package org.techtown.puppydiary.network;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.Login;
-import org.techtown.puppydiary.Pwd;
-import org.techtown.puppydiary.calendarmenu.DBHelper_cal;
-import org.techtown.puppydiary.network.Data.AccountUpdateData;
-import org.techtown.puppydiary.network.Data.CalendarPhotoData;
-import org.techtown.puppydiary.network.Data.CalendarUpdateData;
+import org.techtown.puppydiary.network.Data.account.AccountUpdateData;
+import org.techtown.puppydiary.network.Data.calendar.CalendarPhotoData;
+import org.techtown.puppydiary.network.Data.calendar.CalendarUpdateData;
 import org.techtown.puppydiary.network.Data.CheckemailData;
 import org.techtown.puppydiary.network.Data.FindpwData;
+import org.techtown.puppydiary.network.Data.account.InsertAccountData;
 import org.techtown.puppydiary.network.Data.KgupdateData;
-import org.techtown.puppydiary.network.Data.MyinfoData;
 import org.techtown.puppydiary.network.Data.ProfileData;
 import org.techtown.puppydiary.network.Data.RegisterData;
-import org.techtown.puppydiary.network.Data.ShowAccountData;
-import org.techtown.puppydiary.network.Data.ShowDayData;
-import org.techtown.puppydiary.network.Data.ShowKgData;
-import org.techtown.puppydiary.network.Data.ShowMonthData;
 import org.techtown.puppydiary.network.Data.SigninData;
 import org.techtown.puppydiary.network.Data.SignupData;
 import org.techtown.puppydiary.network.Data.UpdatepwData;
-import org.techtown.puppydiary.network.Response.AccountUpdateResponse;
-import org.techtown.puppydiary.network.Response.CalendarPhotoResponse;
-import org.techtown.puppydiary.network.Response.CalendarUpdateResponse;
+import org.techtown.puppydiary.network.Response.account.AccountUpdateResponse;
+import org.techtown.puppydiary.network.Response.calendar.CalendarPhotoResponse;
+import org.techtown.puppydiary.network.Response.calendar.CalendarUpdateResponse;
+import org.techtown.puppydiary.network.Response.account.CheckAccountResponse;
 import org.techtown.puppydiary.network.Response.CheckemailResponse;
+import org.techtown.puppydiary.network.Response.account.DeleteAccountResponse;
 import org.techtown.puppydiary.network.Response.FindpwResponse;
+import org.techtown.puppydiary.network.Response.account.InsertAccountResponse;
 import org.techtown.puppydiary.network.Response.KgupdateResponse;
 import org.techtown.puppydiary.network.Response.MyinfoResponse;
 import org.techtown.puppydiary.network.Response.ProfileResponse;
 import org.techtown.puppydiary.network.Response.RegisterResponse;
-import org.techtown.puppydiary.network.Response.ShowAccountResponse;
-import org.techtown.puppydiary.network.Response.ShowDayResponse;
+import org.techtown.puppydiary.network.Response.account.ShowAccountResponse;
+import org.techtown.puppydiary.network.Response.calendar.ShowDayResponse;
 import org.techtown.puppydiary.network.Response.ShowKgResponse;
-import org.techtown.puppydiary.network.Response.ShowMonthResponse;
+import org.techtown.puppydiary.network.Response.calendar.ShowMonthResponse;
 import org.techtown.puppydiary.network.Response.SigninResponse;
 import org.techtown.puppydiary.network.Response.SignupResponse;
 import org.techtown.puppydiary.network.Response.UpdatepwResponse;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
-import retrofit2.http.HeaderMap;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -162,8 +142,17 @@ public interface ServiceApi {
     @GET("/account/show/{year}/{month}/{date}") //가계부 조회
     Call<ShowAccountResponse> showaccount (@Path("year") int year, @Path("month") int month, @Path("date") int date);
 
-    @POST("/account/update") //가계부 업데이트
-    Call<AccountUpdateResponse> accountupdate (@Body AccountUpdateData data);
+    @POST("/account/insert") //가계부 아이템 추가
+    Call<InsertAccountResponse> insertaccount (@Body InsertAccountData data);
+
+    @GET("/account/check/{year}/{month}/{date}/{item}/{price}") //가계부 아이템 조회 확인(idx)
+    Call<CheckAccountResponse> checkaccount (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Path("item") String item, @Path("price") int price);
+
+    @POST("/account/update/{idaccount}") //가계부 아이템 수정
+    Call<AccountUpdateResponse> accountupdate (@Path("idaccount") int idaccount, @Body AccountUpdateData data);
+
+    @DELETE("/account/delete/{idaccount}") //가계부 아이템 삭제
+    Call<DeleteAccountResponse> deleteaccount (@Path("idaccount") int idaccount);
 
 }
 

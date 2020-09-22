@@ -1,23 +1,9 @@
 package org.techtown.puppydiary.calendarmenu;
 
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,17 +15,13 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.R;
-import org.techtown.puppydiary.network.Data.CalendarUpdateData;
-import org.techtown.puppydiary.network.Response.CalendarUpdateResponse;
-import org.techtown.puppydiary.network.Response.ShowDayResponse;
-import org.techtown.puppydiary.network.Response.ShowMonthResponse;
-import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.Data.calendar.CalendarUpdateData;
+import org.techtown.puppydiary.network.Response.calendar.CalendarUpdateResponse;
+import org.techtown.puppydiary.network.Response.calendar.ShowDayResponse;
 import org.techtown.puppydiary.network.RetrofitClient;
 import org.techtown.puppydiary.network.ServiceApi;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;

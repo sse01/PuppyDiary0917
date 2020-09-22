@@ -1,11 +1,7 @@
-package org.techtown.puppydiary.network.Response;
+package org.techtown.puppydiary.network.Response.calendar;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import org.techtown.puppydiary.network.Data.ShowDayData;
 
 import java.util.List;
 

@@ -1,15 +1,10 @@
 package org.techtown.puppydiary.calendarmenu;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,22 +21,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.techtown.puppydiary.DBHelper_user;
-import org.techtown.puppydiary.Login;
-import org.techtown.puppydiary.calendarmenu.CalendarTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
 import org.techtown.puppydiary.MypuppyTab;
 import org.techtown.puppydiary.R;
-import org.techtown.puppydiary.SetPuppy;
-import org.techtown.puppydiary.accountmenu.MoneyEdit;
 import org.techtown.puppydiary.accountmenu.MoneyTab;
-import org.techtown.puppydiary.kgmenu.KgTab;
-import org.techtown.puppydiary.network.Data.ShowDayData;
-import org.techtown.puppydiary.network.Data.ShowMonthData;
-import org.techtown.puppydiary.network.Response.MyinfoResponse;
-import org.techtown.puppydiary.network.Response.ShowDayResponse;
-import org.techtown.puppydiary.network.Response.ShowMonthResponse;
-import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.Data.calendar.ShowDayData;
+import org.techtown.puppydiary.network.Response.calendar.ShowDayResponse;
+import org.techtown.puppydiary.network.Response.calendar.ShowMonthResponse;
 import org.techtown.puppydiary.network.RetrofitClient;
 import org.techtown.puppydiary.network.ServiceApi;
 
@@ -114,11 +100,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         setContentView(R.layout.activity_calendar);
 
         actionBar = getSupportActionBar();
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xffD6336B));
-        getSupportActionBar().setTitle("댕댕이어리");
-        actionBar.setIcon(R.drawable.white_puppy) ;
-        actionBar.setDisplayUseLogoEnabled(true) ;
-        actionBar.setDisplayShowHomeEnabled(true) ;
 
         Button cal = findViewById(R.id.calendar);
         cal.setOnClickListener(new View.OnClickListener() {
