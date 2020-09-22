@@ -1,16 +1,24 @@
 package org.techtown.puppydiary.network.Response;
 
 import com.google.gson.JsonArray;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 public class ShowMonthResponse {
 
+    @SerializedName("status")
     private int status;
+
+    @SerializedName("success")
     private boolean success;
+
+    @SerializedName("message")
     private String message;
-    private JsonArray data;
-    private int date;
-    private int inject;
-    private int water;
+
+    @SerializedName("data")
+    private List<ShowMonth> data;
 
     public int getStatus(){
         return status;
@@ -24,20 +32,30 @@ public class ShowMonthResponse {
         return message;
     }
 
-    public JsonArray getData(){ return data; }
-
-    public int getDate(){
-        date = data.getAsJsonObject().get("date").getAsInt();
-        return date;
+    public List<ShowMonth> getData(){
+        return data;
     }
 
-    public int getInject(){
-        inject = data.getAsJsonObject().get("inject").getAsInt();
-        return inject;
-    }
+    public class ShowMonth {
+        @SerializedName("date")
+        private int date;
 
-    public int getWater(){
-        water = data.getAsJsonObject().get("water").getAsInt();
-        return water;
+        @SerializedName("inject")
+        private int inject;
+
+        @SerializedName("water")
+        private int water;
+
+        public int getDate(){
+            return date;
+        }
+
+        public int getInject(){
+            return inject;
+        }
+
+        public int getWater(){
+            return water;
+        }
     }
 }

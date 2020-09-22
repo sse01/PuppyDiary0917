@@ -9,9 +9,11 @@ public class KgupdateResponse {
     private boolean success;
     private String message;
     private JsonArray data;
+
     private int kgIdx;
     private int userIdx;
     private int year;
+
     private String jan;
     private String feb;
     private String mar;
@@ -24,6 +26,7 @@ public class KgupdateResponse {
     private String oct;
     private String nov;
     private String dec;
+
     private String month;
     private Double kg;
 
@@ -42,7 +45,7 @@ public class KgupdateResponse {
 
     public JsonArray getData(){ return data; }
 
-    public int getKgIdx(){
+    /*public int getKgIdx(){
         kgIdx = data.getAsJsonObject().get("kgIdx").getAsInt();
         return kgIdx;
     }
@@ -115,7 +118,7 @@ public class KgupdateResponse {
     public String getDec(){
         dec = data.getAsJsonObject().get("dec").getAsString();
         return dec;
-    }
+    }*/
 
     public String getMonth(){
         month = data.getAsJsonObject().get("month").getAsString();

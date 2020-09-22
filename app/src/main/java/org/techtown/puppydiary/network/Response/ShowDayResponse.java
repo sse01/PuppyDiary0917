@@ -2,22 +2,30 @@ package org.techtown.puppydiary.network.Response;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import org.techtown.puppydiary.network.Data.ShowDayData;
+
+import java.util.List;
 
 public class ShowDayResponse {
 
+    @SerializedName("status")
+    @Expose
     private int status;
+
+    @SerializedName("success")
+    @Expose
     private boolean success;
+
+    @SerializedName("message")
+    @Expose
     private String message;
-    private JsonObject data;
-    private int idcalendar;
-    private int userIdx;
-    private int year;
-    private int month;
-    private int date;
-    private String memo;
-    private int inject;
-    private int water;
-    private String photo;
+
+    @SerializedName("data")
+    @Expose
+    private List<ShowDay> data;
 
     public int getStatus(){
         return status;
@@ -31,50 +39,81 @@ public class ShowDayResponse {
         return message;
     }
 
-    public JsonObject getData(){ return data; }
-
-    public int getIdcalendar(){
-        idcalendar = data.getAsJsonObject().get("idcalendar").getAsInt();
-        return idcalendar;
+    public List<ShowDay> getData(){
+        return data;
     }
 
-    public int getUserIdx(){
-        userIdx = data.getAsJsonObject().get("userIdx").getAsInt();
-        return userIdx;
-    }
+    public class ShowDay {
+        @SerializedName("idcalendar")
+        @Expose
+        private int idcalendar;
 
-    public int getYear(){
-        year = data.getAsJsonObject().get("year").getAsInt();
-        return year;
-    }
+        @SerializedName("userIdx")
+        @Expose
+        private int userIdx;
 
-    public int getMonth(){
-        month = data.getAsJsonObject().get("month").getAsInt();
-        return month;
-    }
+        @SerializedName("year")
+        @Expose
+        private int year;
 
-    public int getDate(){
-        date = data.getAsJsonObject().get("date").getAsInt();
-        return date;
-    }
+        @SerializedName("month")
+        @Expose
+        private int month;
 
-    public String getMemo(){
-        memo = data.getAsJsonObject().get("memo").getAsString();
-        return memo;
-    }
+        @SerializedName("date")
+        @Expose
+        private int date;
 
-    public int getInject(){
-        inject = data.getAsJsonObject().get("inject").getAsInt();
-        return inject;
-    }
+        @SerializedName("memo")
+        @Expose
+        private String memo;
 
-    public int getWater(){
-        water = data.getAsJsonObject().get("water").getAsInt();
-        return water;
-    }
+        @SerializedName("inject")
+        @Expose
+        private int inject;
 
-    public String getPhoto(){
-        photo = data.getAsJsonObject().get("photo").getAsString();
-        return photo;
+        @SerializedName("water")
+        @Expose
+        private int water;
+
+        @SerializedName("photo")
+        @Expose
+        private String photo;
+
+        public int getIdcalendar(){
+            return idcalendar;
+        }
+
+        public int getUserIdx(){
+            return userIdx;
+        }
+
+        public int getYear(){
+            return year;
+        }
+
+        public int getMonth(){
+            return month;
+        }
+
+        public int getDate(){
+            return date;
+        }
+
+        public String getMemo(){
+            return memo;
+        }
+
+        public int getInject(){
+            return inject;
+        }
+
+        public int getWater(){
+            return water;
+        }
+
+        public String getPhoto(){
+            return photo;
+        }
     }
 }

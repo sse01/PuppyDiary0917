@@ -139,15 +139,15 @@ public interface ServiceApi {
      */
 
     @GET("/mypage/myinfo") //강아지 정보 조회
-    Call<MyinfoResponse> myinfo (@Body MyinfoData data);
+    Call<MyinfoResponse> Getmyinfo ();
 
-    @GET("/canlendar/show/{year}/{month}") //달력 월별 조회
+    @GET("/calendar/show/{year}/{month}") //달력 월별 조회
     Call<ShowMonthResponse> showmonth (@Path("year") int year, @Path("month") int month);
 
-    @GET("/canlendar/show/{year}/{month}/{date}") //달력 일일 조회
+    @GET("/calendar/show/{year}/{month}/{date}") //달력 일일 조회
     Call<ShowDayResponse> showday (@Path("year") int year, @Path("month") int month, @Path("date") int date);
 
-    @POST("/canlendar/{year}/{month}/{date}/photo") //달력 사진 업로드
+    @POST("/calendar/{year}/{month}/{date}/photo") //달력 사진 업로드
     Call<CalendarPhotoResponse> calendarphoto (@Path("year") int year, @Path("month") int month, @Path("date") int date, @Body CalendarPhotoData data);
 
     @POST("/calendar/update") //달력 update

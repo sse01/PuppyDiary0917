@@ -38,6 +38,7 @@ import org.techtown.puppydiary.accountmenu.MoneyTab;
 import org.techtown.puppydiary.kgmenu.KgTab;
 import org.techtown.puppydiary.network.Data.ShowDayData;
 import org.techtown.puppydiary.network.Data.ShowMonthData;
+import org.techtown.puppydiary.network.Response.MyinfoResponse;
 import org.techtown.puppydiary.network.Response.ShowDayResponse;
 import org.techtown.puppydiary.network.Response.ShowMonthResponse;
 import org.techtown.puppydiary.network.Response.SigninResponse;
@@ -46,6 +47,7 @@ import org.techtown.puppydiary.network.ServiceApi;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,6 +66,16 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     public static int THURSDAY = 5;
     public static int FRIDAY = 6;
     public static int SATURDAY = 7;
+
+
+    int year = 0;
+    int month = 0;
+    int date = 0;
+    int state_waterdrop;
+    int state_injection;
+    int showmonth_pos;
+    String memo;
+    String photo;
 
     //연 월 텍스트뷰
     private TextView tvDate;
@@ -85,9 +97,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     int dayOfMonth;
     int thisMonthLastDay;
 
-    int year = 0;
-    int month = 0;
-    int date = 0;
 
     private ServiceApi service;
 
@@ -169,7 +178,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         mCal.set(Calendar.DAY_OF_MONTH, 1);
         getCalendar(mCal);
 
-
     }
 
     //캘린더 구현
@@ -191,11 +199,12 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         lastMonthStartDay -= (dayOfMonth - 1) - 1;
 
         // 캘린더 타이틀(년월 표시)을 세팅
-        tvDate.setText((mCal.get(Calendar.MONTH) + 1) + "월");
+        tvDate.setText((mCal.get(Calendar.MONTH)+1) + "월");
 
         year = mCal.get(Calendar.YEAR);
 
-        switch (mCal.get(Calendar.MONTH)+1){
+        switch (mCal.get(Calendar.MONTH)){
+            case 0: {month = 0; break;}
             case 1: {month = 1; break;}
             case 2: {month = 2; break;}
             case 3: {month = 3; break;}
@@ -207,8 +216,9 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             case 9: {month = 9; break;}
             case 10: {month = 10; break;}
             case 11: {month = 11; break;}
-            case 12: {month = 12; break;}
+            //case 12: {month = 12; break;}
         }
+
 
 
         DayInfo day;
@@ -236,11 +246,9 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             dayList.add(day);
         }
 
-        ShowMonth(new ShowMonthData(year, month));
-
-        gridAdapter = new GridAdapter(this, R.layout.item_calendar, dayList);
-        gridView.setAdapter(gridAdapter);
-
+        ShowMonth();
+        //gridAdapter = new GridAdapter(this, R.layout.item_calendar, dayList);
+        //gridView.setAdapter(gridAdapter);
 
 
     }
@@ -253,8 +261,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         //해당 월에 해당하는 날짜일 때
         if(day.isInMonth()) {
             //Toast.makeText(getApplicationContext(),""+position, Toast.LENGTH_SHORT).show();
-
-            ShowDay(new ShowDayData(year, month, date));
+            ShowDay(new ShowDayData());
         }
 
     }
@@ -264,12 +271,12 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         if (v.getId()==R.id.previous){
             mCal.set(mCal.get(Calendar.YEAR), mCal.get(Calendar.MONTH), 1);
             mCal.add(Calendar.MONTH, -1);
-            tvDate.setText((mCal.get(Calendar.MONTH) + 1) + "월");
+            tvDate.setText((mCal.get(Calendar.MONTH)+1) + "월");
             getCalendar(mCal);
         } else if (v.getId()==R.id.next) {
             mCal.set(mCal.get(Calendar.YEAR), mCal.get(Calendar.MONTH), 1);
             mCal.add(Calendar.MONTH, +1);
-            tvDate.setText((mCal.get(Calendar.MONTH) + 1) + "월");
+            tvDate.setText((mCal.get(Calendar.MONTH)+1) + "월");
             getCalendar(mCal);
         }
     }
@@ -298,9 +305,7 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         }
 
         @Override
-        public Object getItem(int position) {
-            return mdayList.get(position);
-        }
+        public Object getItem(int position) { return mdayList.get(position); }
 
         @Override
         public long getItemId(int position) {
@@ -308,14 +313,15 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         }
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
 
-            final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "caltest.db", null, 1);
+            //final DBHelper_cal dbHelper = new DBHelper_cal(getApplicationContext(), "caltest.db", null, 1);
+
             DayInfo day = dayList.get(position);
             ViewHolder holder = null;
             if (convertView == null) {
                 convertView = minflater.inflate(mresource, null);
-                convertView.setLayoutParams(new GridView.LayoutParams(1080 / 7 + 1080 % 7, 180));
+                convertView.setLayoutParams(new GridView.LayoutParams(1080 / 7 + 1080 % 7, 200));
                 holder = new ViewHolder();
                 holder.tvItem = (TextView) convertView.findViewById(R.id.tv_item_gridview);
                 holder.waterdrop = (ImageView) convertView.findViewById(R.id.waterdrop);
@@ -324,9 +330,10 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            int state_waterdrop = dbHelper.getResult_waterdrop(useridx, position, year, month);
-            int state_injection = dbHelper.getResult_injection(useridx, position, year, month);
+
             if (state_waterdrop == 0 && state_injection == 0) {
+                holder.waterdrop.setImageResource(R.drawable.waterdrop);
+                holder.injection.setImageResource(R.drawable.injection);
             } else if (state_waterdrop == 1 && state_injection == 0) {
                 //물방울만
                 holder.waterdrop.setImageResource(R.drawable.waterdrop_color);
@@ -340,7 +347,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
                 holder.injection.setImageResource(R.drawable.injection_color);
             }
 
-
             if (day != null) {
                 holder.tvItem.setText(day.getDay());
                 if (day.isInMonth()) {
@@ -349,27 +355,13 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
                     } else {
                         holder.tvItem.setTextColor(Color.GRAY);
                     }
+
                 } else {
                     holder.tvItem.setTextColor(Color.TRANSPARENT);
                     holder.waterdrop.setVisibility(View.INVISIBLE);
                     holder.injection.setVisibility(View.INVISIBLE);
                 }
             }
-
-            /*convertView.setId(position);
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    DayInfo day = mdayList.get(position);
-
-                    //해당 월에 해당하는 날짜일 때
-                    if(day.isInMonth()) {
-                        Intent intent = new Intent(CalendarTab.this, CalendarDetail.class);
-                        startActivity(intent);
-                    }
-                }
-            });*/
 
             return convertView;
         }
@@ -388,39 +380,60 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         private String day;
         private boolean inMonth;
 
-        public String getDay()
-        {
+        public String getDay() {
             return day;
         }
 
-        public void setDay(String day)
-        {
+        public void setDay(String day) {
             this.day = day;
         } //날짜저장
 
-        public boolean isInMonth()
-        {
+        public boolean isInMonth() {
             return inMonth;
         } //이번 달 날짜인지 확인
 
-        public void setInMonth(boolean inMonth)
-        {
+        public void setInMonth(boolean inMonth) {
             this.inMonth = inMonth;
         } //정보저장
     }
 
-    private void ShowMonth(ShowMonthData data){
+    private void ShowMonth(){
         service.showmonth(year, month).enqueue(new Callback<ShowMonthResponse>() {
             @Override
             public void onResponse(Call<ShowMonthResponse> call, Response<ShowMonthResponse> response) {
-                ShowMonthResponse result = response.body();
-                //Toast.makeText(CalendarTab.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    gridAdapter = new GridAdapter(getApplicationContext(), R.layout.item_calendar, dayList);
+                    ShowMonthResponse showmonth = response.body();
+                    List<ShowMonthResponse.ShowMonth> my = showmonth.getData();
+
+                    for(int i=0; i<my.size(); i++) {
+                        showmonth_pos = my.get(i).getDate();
+                        state_injection = my.get(i).getInject();
+                        state_waterdrop = my.get(i).getWater();
+                        gridView.setAdapter(gridAdapter);
+                        System.out.println("SHOWMONTH~!~~!! : " + (month) + ", " + showmonth_pos + ", " + state_waterdrop + ", " + state_injection);
+                    }
+                    /*
+                    for(ShowMonthResponse.ShowMonth showMonth : my){
+                        showmonth_pos = showMonth.getDate();
+                        state_waterdrop = showMonth.getWater();
+                        state_injection = showMonth.getInject();
+                        gridView.setAdapter(gridAdapter);
+                        System.out.println("SHOWMONTH~!~~!! : " + (month) + ", " + showmonth_pos + ", " + state_waterdrop + ", " + state_injection);
+                    }
+
+                        showmonth_pos = my.get(0).getDate();
+                        state_waterdrop = my.get(0).getWater();
+                        state_injection = my.get(0).getInject();
+                        System.out.println("SHOWMONTH~!~~!! : " + (month) + ", " + showmonth_pos + ", " + state_waterdrop + ", " + state_injection);
+                    */
+                }
             }
 
             @Override
             public void onFailure(Call<ShowMonthResponse> call, Throwable t) {
-                Toast.makeText(CalendarTab.this, "달력 월별 조회 에러 발생", Toast.LENGTH_SHORT).show();
-                Log.e("달력 월별 조회 에러 발생", t.getMessage());
+                Toast.makeText(CalendarTab.this, "getcall 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("getcall 에러 발생", t.getMessage());
             }
         });
     }

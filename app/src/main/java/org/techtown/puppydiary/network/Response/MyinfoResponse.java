@@ -1,13 +1,14 @@
 package org.techtown.puppydiary.network.Response;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MyinfoResponse {
 
     private int status;
     private boolean success;
     private String message;
-    private ArrayList<Myinfo> data;
+    private List<Myinfo> data;
 
     public int getStatus(){
         return status;
@@ -21,7 +22,7 @@ public class MyinfoResponse {
         return message;
     }
 
-    public ArrayList<Myinfo> getData(){
+    public List<Myinfo> getData(){
         return data;
     }
 
