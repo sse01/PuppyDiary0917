@@ -97,6 +97,8 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
     int dayOfMonth;
     int thisMonthLastDay;
 
+    int getyear = 0;
+    int getmonth = 0;
 
     private ServiceApi service;
 
@@ -158,6 +160,9 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
             }
         });
 
+        Intent intent_get = new Intent(getIntent());
+        getyear = intent_get.getIntExtra("after_year", 0);
+        getmonth = intent_get.getIntExtra("after_month", 0);
 
         tvDate = findViewById(R.id.tv_date);
         gridView = findViewById(R.id.gridview);

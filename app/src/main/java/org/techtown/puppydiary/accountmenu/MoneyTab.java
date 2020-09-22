@@ -163,12 +163,23 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
 
         // 아이템 수정, 삭제 후 해당 날짜로 돌아오기
         Intent intent_after = new Intent(getIntent());
+        int after_year = intent_after.getIntExtra("after_year", 0);
+        int after_month = intent_after.getIntExtra("after_month", 0);
+        int after_day = intent_after.getIntExtra("after_day", 0);
+
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/M/d", Locale.KOREA);
-        tv_date.setText(sdf.format(myCalendar.getTime()));
-        year_money = myCalendar.get(Calendar.YEAR);
-        month_money = myCalendar.get(Calendar.MONTH) + 1;
-        day_money = myCalendar.get(Calendar.DAY_OF_MONTH);
+        if(after_year != 0){
+            tv_date.setText(sdf.format(after_year+"/"+after_month+"/"+after_day));
+            year_money = after_year;
+            month_money = after_month;
+            day_money = after_day;
+        } else {
+            tv_date.setText(sdf.format(myCalendar.getTime()));
+            year_money = myCalendar.get(Calendar.YEAR);
+            month_money = myCalendar.get(Calendar.MONTH) + 1;
+            day_money = myCalendar.get(Calendar.DAY_OF_MONTH);
+        }
         ShowAccount();
 
 
@@ -224,10 +235,10 @@ public class MoneyTab extends AppCompatActivity implements AdapterView.OnItemCli
         int setyear = year_money;
         int setmonth = month_money;
         int setday = day_money;
-        position = i+1;
+        memo = itemArray.get(i).memo;
+        price = itemArray.get(i).price;
 
         Intent intent = new Intent(MoneyTab.this, MoneyEdit.class);
-        intent.putExtra("position", position);
         intent.putExtra("year", setyear);
         intent.putExtra("month", setmonth);
         intent.putExtra("day", setday);

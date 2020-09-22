@@ -2,10 +2,9 @@ package org.techtown.puppydiary.accountmenu;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,9 +14,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.techtown.puppydiary.DBHelper_user;
 import org.techtown.puppydiary.R;
-import org.techtown.puppydiary.network.Response.SigninResponse;
+import org.techtown.puppydiary.network.Data.AccountUpdateData;
+import org.techtown.puppydiary.network.Response.AccountUpdateResponse;
+import org.techtown.puppydiary.network.RetrofitClient;
+import org.techtown.puppydiary.network.ServiceApi;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 //moneyTab item click 시 나오는 수정 삭제 화면
 public class MoneyEdit extends AppCompatActivity {
@@ -26,12 +33,16 @@ public class MoneyEdit extends AppCompatActivity {
     ActionBar actionBar;
 
     TextView tv_date;
-    TextView tv_price;
-    TextView tv_memo;
-    int getprice = 0;
-    String getmemo = null;
+    EditText et_price;
+    EditText et_memo;
+
+    int getyear = 0;
+    int getmonth = 0;
+    int getday = 0;
     int price = 0;
     String memo = null;
+
+    private ServiceApi service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,57 +57,46 @@ public class MoneyEdit extends AppCompatActivity {
         actionBar.setDisplayUseLogoEnabled(true) ;
         actionBar.setDisplayShowHomeEnabled(true) ;
 
-
-        //final int useridx = userinfo.load(getApplicationContext());
-        final int useridx = 0;
-
-
-        //final DBHelper_money dbHelper = new DBHelper_money(getApplicationContext(), "dbmoneytest.db", null, 1);
+        service = RetrofitClient.getClient().create(ServiceApi.class);
 
         final Intent intent = new Intent(getIntent());
-        final int position = intent.getIntExtra("position", 0);
-        final int getyear = intent.getIntExtra("year", 0);
-        final int getmonth = intent.getIntExtra("month", 0);
-        final int getday = intent.getIntExtra("day", 0);
-        final String memo = intent.getStringExtra("memo");
-        final int price = intent.getIntExtra("price", 0);
+        getyear = intent.getIntExtra("year", 0);
+        getmonth = intent.getIntExtra("month", 0);
+        getday = intent.getIntExtra("day", 0);
+        memo = intent.getStringExtra("memo");
+        price = intent.getIntExtra("price", 0);
 
 
         final String getdate = getyear + "/" + getmonth + "/" + getday;
 
 
-        tv_price = findViewById(R.id.price_data);
-        tv_price.setText(price);
+        et_price = (EditText) findViewById(R.id.price_data);
+        et_price.setText(Integer.toString(price));
 
-        tv_memo = findViewById(R.id.memo_data);
-        tv_memo.setText(memo);
+        et_memo = (EditText) findViewById(R.id.memo_data);
+        et_memo.setText(memo);
 
         // 날짜 고정 : 수정 불가
         tv_date = findViewById(R.id.date_data);
         tv_date.setText(getdate);
 
 
-        Button cancel = findViewById(R.id.cancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
+        Button close = findViewById(R.id.close);
+        close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
-                /*
+            }
+        });
+
+        Button edit = findViewById(R.id.edit);
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 price = Integer.parseInt(et_price.getText().toString());
                 //price = et_price.getText().toString();
                 memo = et_memo.getText().toString();
-                dbHelper.update(position, getyear, getmonth, getday, price, memo);
-                Intent intent_after = new Intent(MoneyEdit.this, MoneyTab.class);
-                intent_after.putExtra("after_position", position);
-                intent_after.putExtra("after_year", getyear);
-                intent_after.putExtra("after_month", getmonth);
-                intent_after.putExtra("after_day", getday);
-                intent_after.putExtra("after_memo", memo);
-                intent_after.putExtra("after_price", price);
-                startActivity(intent_after);
-                Toast toastView = Toast.makeText(getApplicationContext(), "수정되었습니다" , Toast.LENGTH_LONG);
-                toastView.show();
-                 */
+                AccountUpdate(new AccountUpdateData(getyear, getmonth, getday, memo, price));
             }
         });
 
@@ -110,11 +110,36 @@ public class MoneyEdit extends AppCompatActivity {
                 intent_after.putExtra("after_year", getyear);
                 intent_after.putExtra("after_month", getmonth);
                 intent_after.putExtra("after_day", getday);
-                intent_after.putExtra("deletesign", 100);
                 startActivity(intent_after);
                 Toast toastView = Toast.makeText(getApplicationContext(), "삭제되었습니다" , Toast.LENGTH_LONG);
                 toastView.show();
             }
         });
     }
+
+    private void AccountUpdate(final AccountUpdateData data){
+        service.accountupdate(data).enqueue(new Callback<AccountUpdateResponse>() {
+            @Override
+            public void onResponse(Call<AccountUpdateResponse> call, Response<AccountUpdateResponse> response) {
+                AccountUpdateResponse result = response.body();
+                //List<AccountUpdateResponse.AccountUpdate> my = result.getData();
+                //System.out.println("accountUPDATE!!! : " + my.get(0).getMonth() + my.get(0).getDate());
+                Toast.makeText(MoneyEdit.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                if(result.getSuccess() == true){
+                    Intent intent_after = new Intent(MoneyEdit.this, MoneyTab.class);
+                    intent_after.putExtra("after_year", getyear);
+                    intent_after.putExtra("after_month", getmonth);
+                    intent_after.putExtra("after_day", getday);
+                    startActivity(intent_after);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AccountUpdateResponse> call, Throwable t) {
+                Toast.makeText(MoneyEdit.this, "가계부 업데이트 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("가계부 업데이트 에러 발생", t.getMessage());
+            }
+        });
+    }
+
 }

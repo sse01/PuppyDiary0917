@@ -248,8 +248,7 @@ public class CalendarDetail extends AppCompatActivity {
         cancel_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent_month = new Intent(getApplicationContext(), CalendarTab.class);
-                startActivityForResult(intent_month, 2000);
+                finish();
             }
         });
 
@@ -289,8 +288,9 @@ public class CalendarDetail extends AppCompatActivity {
                 CalendarUpdateResponse result = response.body();
                 Toast.makeText(CalendarDetail.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                 if(result.getSuccess() == true) {
-                    System.out.println("UPDATE SUCCESS " + month + date + memo + state_waterdrop + state_injection);
                     Intent intent_month = new Intent(getApplicationContext(), CalendarTab.class);
+                    intent_month.putExtra("after_year", year);
+                    intent_month.putExtra("after_month", month);
                     startActivityForResult(intent_month, 2000);
                 }
             }
