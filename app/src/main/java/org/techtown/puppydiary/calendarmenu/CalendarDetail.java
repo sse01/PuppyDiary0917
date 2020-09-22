@@ -37,8 +37,8 @@ public class CalendarDetail extends AppCompatActivity {
     int year = 0;
     int month = 0;
     int date = 0;
-    int state_waterdrop = 0;
-    int state_injection = 0;
+    int state_waterdrop = -1;
+    int state_injection = -1;
     int showmonth_pos = 0;
     String memo;
     String photo;
@@ -90,6 +90,12 @@ public class CalendarDetail extends AppCompatActivity {
 
         image_upload = (ImageView) findViewById(R.id.image_upload);
 
+        //기본세팅
+        waterdrop_btn2.setVisibility(View.INVISIBLE);
+        waterdrop_btn.setVisibility(View.VISIBLE);
+        injection_btn2.setVisibility(View.INVISIBLE);
+        injection_btn.setVisibility(View.VISIBLE);
+
         Call<ShowDayResponse> showday = service.showday(year, month, date);
         showday.enqueue(new Callback<ShowDayResponse>() {
             @Override
@@ -108,11 +114,7 @@ public class CalendarDetail extends AppCompatActivity {
                         }
                         state_waterdrop = my.get(0).getWater();
                         state_injection = my.get(0).getInject();
-                        //기본세팅 : 물방울, 주사기 색깔 없음
-                        if(state_waterdrop == 0 && state_injection == 0) {
-                            waterdrop_btn2.setVisibility(View.INVISIBLE);
-                            injection_btn2.setVisibility(View.INVISIBLE);
-                        } else if (state_waterdrop == 1 && state_injection == 0){
+                        if (state_waterdrop == 1 && state_injection == 0){
                             // 물방울만 색깔 있을 때
                             waterdrop_btn2.setVisibility(View.VISIBLE);
                             waterdrop_btn.setVisibility(View.INVISIBLE);
@@ -129,8 +131,12 @@ public class CalendarDetail extends AppCompatActivity {
                             waterdrop_btn.setVisibility(View.INVISIBLE);
                             injection_btn2.setVisibility(View.VISIBLE);
                             injection_btn.setVisibility(View.INVISIBLE);
+                        } else {
+                            waterdrop_btn2.setVisibility(View.INVISIBLE);
+                            waterdrop_btn.setVisibility(View.VISIBLE);
+                            injection_btn2.setVisibility(View.INVISIBLE);
+                            injection_btn.setVisibility(View.VISIBLE);
                         }
-                        System.out.println("getday!!!!! : " + (month) + date + memo + state_waterdrop + state_injection);
                     }
                 }
             }
@@ -146,7 +152,6 @@ public class CalendarDetail extends AppCompatActivity {
 
 
        // image_byte = dbHelper.getResultimg(useridx, pos, year, month);
-        System.out.println("open : " + image_byte);
         if (image_byte != null) {
             BitmapFactory.decodeByteArray(image_byte, 0, image_byte.length);
             image_upload.setImageBitmap(upload_bitmap);
@@ -214,7 +219,6 @@ public class CalendarDetail extends AppCompatActivity {
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println();
                 memo = memo_et.getText().toString();
                 /*if (image_byte == null){
                     dbHelper.insert(useridx, pos, year, month, text, null, waterdrop, injection);
