@@ -7,11 +7,15 @@ import android.content.Intent;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Path;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.service.autofill.Dataset;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.utils.ColorTemplate;
@@ -20,14 +24,26 @@ import org.techtown.puppydiary.MypuppyTab;
 import org.techtown.puppydiary.R;
 import org.techtown.puppydiary.accountmenu.MoneyTab;
 import org.techtown.puppydiary.calendarmenu.CalendarTab;
+import org.techtown.puppydiary.network.Data.KgupdateData;
+import org.techtown.puppydiary.network.Data.ShowKgData;
+import org.techtown.puppydiary.network.Response.KgupdateResponse;
+import org.techtown.puppydiary.network.Response.MyinfoResponse;
+import org.techtown.puppydiary.network.Response.ShowKgResponse;
+import org.techtown.puppydiary.network.RetrofitClient;
+import org.techtown.puppydiary.network.ServiceApi;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class KgTab extends AppCompatActivity {
     private TextView tvDate;
@@ -37,8 +53,24 @@ public class KgTab extends AppCompatActivity {
     public static String kg_month;
     public static int yearr; // kgPopUp으로 넘어가면서 넘겨줄거임.
     public int flag; //년도가 바뀌었는지 확인
-    double [] kgpuppy = new double[12]; // 전에 10년 후에 20년, 지금이 [9][]
     //double [] kgpuppy = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    private ServiceApi service;
+
+    float m1;
+    float m2;
+    float m3;
+    float m4;
+    float m5;
+    float m6 = 0;
+    float m7 = 0;
+    float m8 = 0;
+    float m9 = 0;
+    float m10 = 0;
+    float m11 = 0;
+    float m12 = 0;
+
+    BarDataSet ds;
 
     Button jan;
     Button feb;
@@ -54,7 +86,6 @@ public class KgTab extends AppCompatActivity {
     Button dec;
 
     static boolean jan_pr = false;
-
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -77,6 +108,7 @@ public class KgTab extends AppCompatActivity {
         //getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         //getSupportActionBar().setCustomView(R.layout.custom_bar);
 
+        service = RetrofitClient.getClient().create(ServiceApi.class);
 
         Intent intent = new Intent(getIntent());
         flag = intent.getIntExtra("year", 0);
@@ -280,14 +312,9 @@ public class KgTab extends AppCompatActivity {
                 x.setTextSize(0);
                 x.setTextColor(0x00000000); //x 변수 안 보이게 설정
 
-
-
                 ArrayList<BarEntry> entries = new ArrayList();
-
-                BarDataSet dataset = new BarDataSet(entries,"체중(kg)");//속성값
-                dataset.setColors(ColorTemplate.COLORFUL_COLORS);//color random
-
                 BarData data = new BarData(getDataSet());
+
 
                 final ArrayList<String> labels = new ArrayList<>();
                 labels.add("Jan");
@@ -327,13 +354,7 @@ public class KgTab extends AppCompatActivity {
                 x.setTextSize(0);
                 x.setTextColor(0x00000000); //x 변수 안 보이게 설정
 
-
-
                 ArrayList<BarEntry> entries = new ArrayList();
-
-                BarDataSet dataset = new BarDataSet(entries,"체중(kg)");//속성값
-                dataset.setColors(ColorTemplate.COLORFUL_COLORS);//color random
-
                 BarData data = new BarData(getDataSet());
 
                 final ArrayList<String> labels = new ArrayList<>();
@@ -374,12 +395,7 @@ public class KgTab extends AppCompatActivity {
             x.setTextSize(0);
             x.setTextColor(0x00000000); //x 변수 안 보이게 설정
 
-
             ArrayList<BarEntry> entries = new ArrayList();
-
-            BarDataSet dataset = new BarDataSet(entries, "체중(kg)");//속성값
-            dataset.setColors(ColorTemplate.COLORFUL_COLORS);//color random
-
             BarData data = new BarData(getDataSet());
 
             final ArrayList<String> labels = new ArrayList<>();
@@ -428,49 +444,158 @@ public class KgTab extends AppCompatActivity {
 
     private BarDataSet getDataSet() { //표시할 데이터 추가
 
-        final DBHelper_kg dbHelper = new DBHelper_kg(getApplicationContext(), "KG.db", null, 1);
-        //double kgs[] = new double[12];
+        final ArrayList<BarEntry> entries = new ArrayList<>();
+
+        /*
+        service.showkg(yearr).enqueue(new Callback<ShowKgResponse>() {
+            @Override
+            public void onResponse(Call<ShowKgResponse> call, Response<ShowKgResponse> response) {
+                ShowKgResponse showkg = response.body();
+                if (response.isSuccessful()) {
+                    List<ShowKgResponse.ShowKg> my = showkg.getData();
+                    for(ShowKgResponse.ShowKg sk : my){
+                       entries.add(new BarEntry( )
+                    }
+
+                    if(my != null){
+                        for(int i=0; i<my.size(); i++){
+                            switch (my.get(i).getMonth()){
+                                case "January" : {
+                                    kg[0] = my.get(i).getKg();
+                                    System.out.println("kg 0 : " + kg[0]);
+                                    break;
+                                }
+                                case "February" : {
+                                    kg[1] = my.get(i).getKg();
+                                    System.out.println("kg 1 : " + kg[1]);
+                                    break;
+                                }
+                                case "March" : {
+                                    kg[2] = my.get(i).getKg();
+                                    System.out.println("kg 2 : " + kg[2]);
+                                    break;
+                                }
+                                case "April" : {
+                                    kg[3] = my.get(i).getKg();
+                                    System.out.println("kg 3 : " + kg[3]);
+                                    break;
+                                }
+                                case "May" : {
+                                    kg[4] = my.get(i).getKg();
+                                    System.out.println("kg 4 : " + kg[4]);
+                                    break;
+                                }
+                                case "June" : {
+                                    kg[5] = my.get(i).getKg();
+                                    System.out.println("kg 5 : " + kg[5]);
+                                    break;
+                                }
+                                case "July" : {
+                                    kg[6] = my.get(i).getKg();
+                                    System.out.println("kg 6 : " + kg[6]);
+                                    break;
+                                }
+                                case "August" : {
+                                    kg[7] = my.get(i).getKg();
+                                    System.out.println("kg 7 : " + kg[7]);
+                                    break;
+                                }
+                                case "September" : {
+                                    kg[8] = my.get(i).getKg();
+                                    System.out.println("kg 8 : " + kg[8]);
+                                    break;
+                                }
+                                case "October" : {
+                                    kg[9] = my.get(i).getKg();
+                                    System.out.println("kg 9 : " + kg[9]);
+                                    break;
+                                }
+                                case "November" : {
+                                    kg[10] = my.get(i).getKg();
+                                    System.out.println("kg 10 : " + kg[10]);
+                                    break;
+                                }
+                                case "December" : {
+                                    kg[11] = my.get(i).getKg();
+                                    System.out.println("kg 11 : " + kg[11]);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
 
 
-        //    for (int i = 0; i < 12; i++) {
-        //        kgs[i] = dbHelper.getResult(yearr, i);
-        //    }
+            @Override
+            public void onFailure(Call<ShowKgResponse> call, Throwable t) {
+                Toast.makeText(KgTab.this, "kg 조회 에러 발생", Toast.LENGTH_SHORT).show();
+                Log.e("kg 조회 에러 발생", t.getMessage());
+            }
+        });
+*/
+        ShowKg();
+        entries.add(new BarEntry(12f, Float.parseFloat(String.valueOf(m1))));
+        entries.add(new BarEntry(11f, m2));
+        entries.add(new BarEntry(10f, m3));
+        entries.add(new BarEntry(9f, m4));
+        entries.add(new BarEntry(8f, m5));
+        entries.add(new BarEntry(7f, m6));
+        entries.add(new BarEntry(6f, 3));
+        entries.add(new BarEntry(5f, 2));
+        entries.add(new BarEntry(4f, m9));
+        entries.add(new BarEntry(3f, m10));
+        entries.add(new BarEntry(2f, m11));
+        entries.add(new BarEntry(1f, m12));
 
-        //Log.d("kg", "kg ." + puppyjan);
-
-        ArrayList<BarEntry> entries = new ArrayList();
-        entries.add(new BarEntry(1f, 0));
-        entries.add(new BarEntry(2f, 0));
-        entries.add(new BarEntry(3f, 0));
-        entries.add(new BarEntry(4f, 0));
-        entries.add(new BarEntry(5f, 0));
-        entries.add(new BarEntry(6f, 0));
-        entries.add(new BarEntry(7f, 0));
-        entries.add(new BarEntry(8f, 0));
-        entries.add(new BarEntry(9f, 0));
-        entries.add(new BarEntry(10f, 0));
-        entries.add(new BarEntry(11f, 0));
-        entries.add(new BarEntry(12f, 0));
-        // 해당 kg 값은 서버에서 받아서 그때마다 보여주게 해야함. 여기서 year에 맞는 kgs을 받아오면 됨.
-
-        //entries.add(new BarEntry(1f, (float) dbHelper.getResult(31, yearr, 12)));
-        //entries.add(new BarEntry(2f, (float) dbHelper.getResult(31, yearr, 11)));
-        //entries.add(new BarEntry(3f, (float) dbHelper.getResult(31, yearr, 10)));
-        //entries.add(new BarEntry(4f, (float) dbHelper.getResult(31, yearr, 9)));
-        //entries.add(new BarEntry(5f, (float) dbHelper.getResult(31, yearr, 8)));
-        //entries.add(new BarEntry(6f, (float) dbHelper.getResult(31, yearr, 7)));
-        //entries.add(new BarEntry(7f, (float) dbHelper.getResult(31, yearr, 6)));
-        //entries.add(new BarEntry(8f, (float) dbHelper.getResult(31, yearr, 5)));
-        //entries.add(new BarEntry(9f, (float) dbHelper.getResult(31, yearr, 4)));
-        //entries.add(new BarEntry(10f, (float) dbHelper.getResult(31, yearr, 3)));
-        //entries.add(new BarEntry(11f, (float) dbHelper.getResult(31, yearr, 2)));
-        //entries.add(new BarEntry(12f, (float) dbHelper.getResult(31, yearr, 1))); //아마 이게 january, 이건 확인해보면 암
-
-        BarDataSet dataset = new BarDataSet(entries,"체중(kg)");//속성값
-        dataset.setColors(ColorTemplate.VORDIPLOM_COLORS);//color random
-
-
-        return dataset;
+        ds = new BarDataSet(entries,"체중(kg)");//속성값
+        ds.setColors(ColorTemplate.VORDIPLOM_COLORS);//color random
+        return ds;
     }
 
+    private void ShowKg(){
+        service.showkg(yearr).enqueue(new Callback<ShowKgResponse>() {
+            @Override
+            public void onResponse(Call<ShowKgResponse> call, Response<ShowKgResponse> response) {
+                ShowKgResponse showkg = response.body();
+                if(response.isSuccessful()){
+                    List<ShowKgResponse.ShowKg> my = showkg.getData();
+                    if(my != null){
+                        m1 = my.get(0).getKg();
+                        m2 = my.get(1).getKg();
+                        m3 = my.get(2).getKg();
+                        m4 = my.get(3).getKg();
+                        m5 = my.get(4).getKg();
+                        m6 = my.get(5).getKg();
+                        m7 = my.get(6).getKg();
+                        m8 = my.get(7).getKg();
+                        m9 = my.get(8).getKg();
+                        m10 = my.get(9).getKg();
+                        m11 = my.get(10).getKg();
+                        m12 = my.get(11).getKg();
+                        System.out.println(m1+ ", " + m2 + ", " + m3 + ", " + m4 + ", " + m5);
+                    }else{
+                        m1 = 0;
+                        m2 = 0;
+                        m3 = 0;
+                        m4 = 0;
+                        m5 = 0;
+                        m6 = 0;
+                        m7 = 0;
+                        m8 = 0;
+                        m9 = 0;
+                        m10 = 0;
+                        m11 = 0;
+                        m12 = 0;
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ShowKgResponse> call, Throwable t) {
+
+            }
+        });
+    }
 }

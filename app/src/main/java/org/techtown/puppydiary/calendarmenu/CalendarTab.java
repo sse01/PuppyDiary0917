@@ -411,9 +411,6 @@ public class CalendarTab extends AppCompatActivity implements View.OnClickListen
         } //정보저장
     }
 
-    private void ShowMonth(){
-
-    }
 
     private void ShowDay(ShowDayData data){
         service.showday(year, month, date).enqueue(new Callback<ShowDayResponse>() {

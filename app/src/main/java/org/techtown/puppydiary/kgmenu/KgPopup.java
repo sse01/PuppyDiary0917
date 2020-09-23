@@ -39,8 +39,7 @@ public class KgPopup extends AppCompatActivity {
     String monthname;
     private  static Context context;
     ActionBar actionBar;
-    //public static double puppykg; public으로 설정을 해주어야 다른 클래스에서 사용 가능
-    public static double puppykg;
+    public static float puppykg;
     String kgStr;
     EditText weight;
     Button okay;
@@ -94,52 +93,53 @@ public class KgPopup extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), year + "입니다", Toast.LENGTH_LONG).show();
 
                 if(monthname.equals("January")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
+
                     //dbHelper.insert(userIdx, year, 1, puppykg);
                     //double.parsedouble을 이용해서 string이었던 "3.5"를 double로 형변환시켜주어 저장 -> 저장 후 kgTab으로 가져감 (이 코드는 kgTab에 있음)
                 }
                 else if(monthname.equals("February")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     // dbHelper.insert(userIdx, year, 2, puppykg);
                 }
                 else if(monthname.equals("March")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     // dbHelper.insert(userIdx, year, 3, puppykg);
                 }
                 else if(monthname.equals("April")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 4, puppykg);
                 }
                 else if(monthname.equals("May")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     // dbHelper.insert(userIdx, year, 5, puppykg);
                 }
                 else if(monthname.equals("June")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 6, puppykg);
                 }
                 else if(monthname.equals("July")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 7, puppykg);
                 }
                 else if(monthname.equals("August")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 8, puppykg);
                 }
                 else if(monthname.equals("September")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 9, puppykg);
                 }
                 else if(monthname.equals("October")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 10, puppykg);
                 }
                 else if(monthname.equals("November")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 11, puppykg);
                 }
                 else if(monthname.equals("December")) {
-                    puppykg = Double.parseDouble(kgStr);
+                    puppykg = Float.parseFloat(kgStr);
                     //dbHelper.insert(userIdx, year, 12, puppykg);
                 }
 
